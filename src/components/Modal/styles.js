@@ -61,7 +61,7 @@ export const ModalContainer = styled.div`
   padding: 20px;
 
   width: 400px;
-  height: 100px;
+  height: 80px;
 
   background-color: #fff;
 

@@ -2,7 +2,7 @@ import { useContext } from 'react';
 
 import { ModalContainer } from './styles';
 import { FiAlertCircle, FiX } from 'react-icons/fi';
-import { ModalContext } from '../../context/ModalContext';
+import { ToastContext } from '../../context/ToastContext';
 
 function Modal() {
   const {
@@ -15,7 +15,7 @@ function Modal() {
     shake,
     resetTimeout,
     initTimeout,
-  } = useContext(ModalContext);
+  } = useContext(ToastContext);
 
   return (
     <ModalContainer

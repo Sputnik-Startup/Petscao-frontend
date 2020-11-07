@@ -1,15 +1,15 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { FiMail, FiLock } from 'react-icons/fi';
+import { FiMail, FiLock, FiBell } from 'react-icons/fi';
 
 import '../../App.css';
 import './main.css';
 
 import logo from '../../assets/logo.svg';
-import { ModalContext } from '../../context/ModalContext';
+import { ToastContext } from '../../context/ToastContext';
 
 function Signin({ history }) {
-  const { showToast } = useContext(ModalContext);
+  const { showToast } = useContext(ToastContext);
 
   return (
     <div id="container">
@@ -34,7 +34,13 @@ function Signin({ history }) {
           Entrar
         </button>
       </form>
-      <Link to="#" onClick={() => history.push()}>
+      <Link
+        to="#"
+        onClick={(e) => {
+          e.preventDefault();
+          showToast('Nova notificação!', <FiBell size={25} color="#333" />);
+        }}
+      >
         Esqueceu sua senha? Solicite aqui.
       </Link>
     </div>

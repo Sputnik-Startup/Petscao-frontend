@@ -1,7 +1,7 @@
 import React from 'react';
 import Routes from './routes';
 
-import { ModalProvider } from './context/ModalContext';
+import { ToastProvider } from './context/ToastContext';
 import { ModalWrap } from './components/Modal';
 
 import './global.css';
@@ -9,11 +9,11 @@ import './App.css';
 
 function App() {
   return (
-    <ModalProvider>
+    <ToastProvider>
       <ModalWrap>
         <Routes />
       </ModalWrap>
-    </ModalProvider>
+    </ToastProvider>
   );
 }
 
