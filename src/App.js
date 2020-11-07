@@ -1,14 +1,20 @@
 import React from 'react';
 import Routes from './routes';
-import { Link } from 'react-router-dom';
 
-import './routes.js'
+import { ModalProvider } from './context/ModalContext';
+import { ModalWrap } from './components/Modal';
+
 import './global.css';
 import './App.css';
 
-
 function App() {
-  return <Routes/>;
+  return (
+    <ModalProvider>
+      <ModalWrap>
+        <Routes />
+      </ModalWrap>
+    </ModalProvider>
+  );
 }
 
 export default App;
