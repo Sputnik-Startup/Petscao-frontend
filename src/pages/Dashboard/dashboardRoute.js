@@ -3,8 +3,6 @@ import { Route } from 'react-router-dom';
 import Appointment from '../Appointment';
 import DashboardContent from './dashboardContent';
 
-// import { Container } from './styles';
-
 function DashboardRoute() {
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiBell, FiSearch, FiUser, FiLogOut } from 'react-icons/fi';
 import { Container } from './styles';
 import profile from '../../assets/54994420.jfif';
@@ -6,22 +6,17 @@ import profile from '../../assets/54994420.jfif';
 function NavBar({ notifications }) {
   const [openNotification, setOpenNotifications] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
-  const notificationRef = useRef(null);
-  const profileRef = useRef(null);
 
   useEffect(() => {
-    let clpNotificationRef = notificationRef.current;
-    let clpProfileRef = profileRef.current;
+    let clpNotificationRef = document.querySelector('.bell');
+    let clpProfileRef = document.querySelector('.profile');
 
     document.addEventListener('click', (e) => {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(e.target)
-      ) {
-        if (openNotification) setOpenNotifications(false);
+      if (clpNotificationRef && !clpNotificationRef.contains(e.target)) {
+        setOpenNotifications(false);
       }
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
-        if (openProfile) setOpenProfile(false);
+      if (clpProfileRef && !clpProfileRef.contains(e.target)) {
+        setOpenProfile(false);
       }
     });
 
@@ -61,7 +56,7 @@ function NavBar({ notifications }) {
         <input type="text" name="search" id="search" placeholder="Buscar" />
       </div>
       <div className="nav-actions">
-        <div className="bell" ref={notificationRef}>
+        <div className="bell">
           <div className="notifications">3</div>
           <FiBell size={24} color="#fff" onClick={openNotificationWindow} />
 
@@ -107,7 +102,7 @@ function NavBar({ notifications }) {
             </div>
           )}
         </div>
-        <div className="profile" ref={profileRef}>
+        <div className="profile">
           <button onClick={openProfileWindow}>
             <img src={profile} alt="profile" />
             <span>Maxwell Olliver</span>

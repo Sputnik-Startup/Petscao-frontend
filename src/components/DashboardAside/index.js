@@ -32,7 +32,9 @@ function DashboardAside() {
 
       <li
         onClick={() => history.push('/dashboard')}
-        className={history.location.pathname === '/dashboard' && 'selected'}
+        className={
+          history.location.pathname === '/dashboard' ? 'selected' : null
+        }
       >
         <FiHome size={22} color="#8254ff" />
         <span>Dashboard</span>
@@ -41,7 +43,9 @@ function DashboardAside() {
       <li
         onClick={() => history.push('/dashboard/appointments')}
         className={
-          history.location.pathname === '/dashboard/appointments' && 'selected'
+          history.location.pathname === '/dashboard/appointments'
+            ? 'selected'
+            : null
         }
       >
         <FiCalendar size={22} color="#38d7ff" />
@@ -51,7 +55,9 @@ function DashboardAside() {
       <li
         onClick={() => history.push('/dashboard/purchases')}
         className={
-          history.location.pathname === '/dashboard/purchases' && 'selected'
+          history.location.pathname === '/dashboard/purchases'
+            ? 'selected'
+            : null
         }
       >
         <FiShoppingCart size={22} color="#6bc97e" />
@@ -61,7 +67,9 @@ function DashboardAside() {
       <li
         onClick={() => history.push('/dashboard/customers')}
         className={
-          history.location.pathname === '/dashboard/customers' && 'selected'
+          history.location.pathname === '/dashboard/customers'
+            ? 'selected'
+            : null
         }
       >
         <FiUsers size={22} color="#f1b71c" />
@@ -71,7 +79,7 @@ function DashboardAside() {
       <li
         onClick={() => history.push('/dashboard/pets')}
         className={
-          history.location.pathname === '/dashboard/pets' && 'selected'
+          history.location.pathname === '/dashboard/pets' ? 'selected' : null
         }
       >
         <FiUsers size={22} color="#fc5400" />
@@ -81,7 +89,9 @@ function DashboardAside() {
       <li
         onClick={() => history.push('/dashboard/employees')}
         className={
-          history.location.pathname === '/dashboard/employees' && 'selected'
+          history.location.pathname === '/dashboard/employees'
+            ? 'selected'
+            : null
         }
       >
         <FiUser size={22} color="#b06e35" />
@@ -91,7 +101,7 @@ function DashboardAside() {
       <li
         onClick={() => history.push('/dashboard/posts')}
         className={
-          history.location.pathname === '/dashboard/posts' && 'selected'
+          history.location.pathname === '/dashboard/posts' ? 'selected' : null
         }
       >
         <FiMail size={22} color="#333" />
@@ -101,7 +111,7 @@ function DashboardAside() {
       <li
         onClick={() => history.push('/dashboard/tools')}
         className={
-          history.location.pathname === '/dashboard/tools' && 'selected'
+          history.location.pathname === '/dashboard/tools' ? 'selected' : null
         }
       >
         <FiSettings size={22} color="#969696" />
