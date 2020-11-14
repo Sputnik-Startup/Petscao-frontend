@@ -1,49 +1,41 @@
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { FiMail, FiLock, FiBell } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiMail } from 'react-icons/fi';
 
-import '../../App.css';
-import './main.css';
+import { Container } from './styles';
 
 import logo from '../../assets/logo.svg';
-import { ToastContext } from '../../context/ToastContext';
+import Input from '../../components/Input';
 
-function Signin({ history }) {
-  const { showToast } = useContext(ToastContext);
+function Signin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [disabled, setDisabled] = useState(false);
+
+  useEffect(() => {
+    if (!email || !password || password.length < 6) {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }, [email, password]);
 
   return (
-    <div id="container">
-      <form action="">
+    <Container>
+      <form>
         <img src={logo} alt="logo" />
         <p>Bem vindo ao sistema Pet’scão</p>
-        <div className="form-input">
-          <FiMail color="#172B4D" size={22} style={{ width: '10%' }} />
-          <input type="text" placeholder="Usuário" />
-        </div>
-        <div className="form-input">
-          <FiLock color="#172B4D" size={22} style={{ width: '10%' }} />
-          <input type="password" placeholder="Senha" />
-        </div>
-
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            showToast('Essa ação não é permitida!');
-          }}
-        >
+        <Input
+          type="text"
+          icon={<FiMail color="#172B4D" size={22} style={{ width: '10%' }} />}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Usuário"
+        />
+        <Input onChange={(e) => setPassword(e.target.value)} />
+        <button type="submit" disabled={disabled}>
           Entrar
         </button>
       </form>
-      <Link
-        to="#"
-        onClick={(e) => {
-          e.preventDefault();
-          showToast('Nova notificação!', <FiBell size={25} color="#333" />);
-        }}
-      >
-        Esqueceu sua senha? Solicite aqui.
-      </Link>
-    </div>
+    </Container>
   );
 }
 
