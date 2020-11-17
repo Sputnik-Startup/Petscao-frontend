@@ -19,6 +19,10 @@ export const Global = createGlobalStyle`
     font-size: 16px;
   }
 
+  button {
+    cursor: pointer;
+  }
+
   ::-webkit-scrollbar {
     width: 5px;
   }

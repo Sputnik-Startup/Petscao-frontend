@@ -68,6 +68,7 @@ export const Container = styled.div`
         top: 50px;
 
         border-radius: 8px;
+        box-shadow: 0 0 20px 10px #0000000a;
 
         .arrow {
           position: absolute;
@@ -195,6 +196,7 @@ export const Container = styled.div`
       }
 
       .profile-dropdown {
+        box-shadow: 0 0 20px 10px #0000000a;
         width: 150px;
         background-color: #fff;
         border-radius: 8px;

@@ -49,7 +49,7 @@ function DashboardAside() {
         }
       >
         <FiCalendar size={22} color="#38d7ff" />
-        <span>Agendamento</span>
+        <span>Agendamentos</span>
       </li>
 
       <li

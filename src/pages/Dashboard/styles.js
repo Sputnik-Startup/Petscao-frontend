@@ -27,19 +27,27 @@ export const ContentContainer = styled.div`
   flex-direction: column;
 
   .content {
+    height: 100%;
     width: 100%;
     display: grid;
+    grid-template-columns: 600px 1fr;
+    grid-template-rows: 417px 1fr;
+    gap: 20px;
     padding-top: 40px;
 
     .week-appointments {
-      width: 600px;
+      min-width: 600px;
+      width: 40%;
+      min-height: 217px;
+      max-height: 417px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       background-color: #fff;
       border-radius: 8px;
       padding-top: 20px;
-      box-shadow: 0 0 20px 10px #0000001a;
+      box-shadow: 0 0 20px 10px #00000010;
+      transition: height 0.3s;
 
       > span {
         padding: 0 20px;
@@ -126,6 +134,66 @@ export const ContentContainer = styled.div`
       ul {
         li {
           list-style: none;
+        }
+      }
+    }
+
+    .last-appointment {
+      min-width: 600px;
+      width: 40%;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      background-color: #fff;
+      border-radius: 8px;
+      padding-top: 20px;
+      box-shadow: 0 0 20px 10px #00000010;
+
+      > span {
+        padding: 0 20px;
+        font-size: 14px;
+        margin-bottom: 20px;
+        color: #858585;
+      }
+
+      h3 {
+        padding: 0 20px;
+        font-size: 25px;
+        margin-bottom: 10px;
+        color: #f1b71c;
+      }
+
+      .appointment {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 0 30px;
+
+        .column {
+          height: 100%;
+          width: calc(100% / 3);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+
+          img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            &.not-rounded {
+              border-radius: 0;
+            }
+          }
+
+          span {
+            font-size: 14px;
+          }
         }
       }
     }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiHome } from 'react-icons/fi';
+import AppointmentGraph from '../../components/AppointmentGraph';
 import ComponentHeader from '../../components/ComponentHeader';
 
 import { ContentContainer } from './styles';
@@ -66,7 +67,10 @@ function DashboardContent() {
         icon={<FiHome size={25} color="#fff" />}
       />
       <div className="content">
-        <div className="week-appointments">
+        <div
+          className="week-appointments"
+          style={{ height: dayAppointment[0] ? '427px' : '217px' }}
+        >
           <h3>Agendamentos nessa semana</h3>
           <span>Selecione um dia da semana</span>
           <ul className="weekdays">
@@ -115,8 +119,8 @@ function DashboardContent() {
           </ul>
           <ul className="appointments">
             {dayAppointment[0] ? (
-              dayAppointment.map((appointment) => (
-                <li className="appointment">
+              dayAppointment.map((appointment, index) => (
+                <li className="appointment" key={index}>
                   <span>
                     <strong>Cliente:</strong>
                     {appointment.customer.name}
@@ -135,6 +139,35 @@ function DashboardContent() {
               <li className="no-day">Nada para mostrar</li>
             )}
           </ul>
+        </div>
+        <AppointmentGraph />
+        <div className="last-appointment">
+          <h3>Último agendamento</h3>
+          <span>Último agendamento registrado. Informação em tempo real</span>
+          <div className="appointment">
+            <div className="column">
+              <img
+                src="https://somos.lojaiplace.com.br/wp-content/uploads/2018/10/app-retoca-selfie.jpg"
+                alt="customer"
+              />
+              <span>Carla Oliveira</span>
+            </div>
+            <div className="column">
+              <img
+                src="https://www.selecoes.com.br/wp-content/uploads/2018/08/brinquedos-para-cachorro-760x450.jpg"
+                alt="pet"
+              />
+              <span>Teddy</span>
+            </div>
+            <div className="column">
+              <img
+                src="https://iconsetc.com/icons-watermarks/flat-circle-white-on-yellow/bfa/bfa_calendar/bfa_calendar_flat-circle-white-on-yellow_512x512.png"
+                className="not-rounded"
+                alt="calendar"
+              />
+              <span>22/11/2020 às 14:00h</span>
+            </div>
+          </div>
         </div>
       </div>
     </ContentContainer>
