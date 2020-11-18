@@ -7,17 +7,8 @@ import logo from '../../assets/logo.svg';
 import Input from '../../components/Input';
 
 function Signin() {
-  const [email, setEmail] = useState('');
+  const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
-  const [disabled, setDisabled] = useState(false);
-
-  useEffect(() => {
-    if (!email || !password || password.length < 6) {
-      setDisabled(true);
-    } else {
-      setDisabled(false);
-    }
-  }, [email, password]);
 
   return (
     <Container>
@@ -26,12 +17,16 @@ function Signin() {
         <p>Bem vindo ao sistema Pet’scão</p>
         <Input
           type="text"
+          value={user}
           icon={<FiMail color="#172B4D" size={22} style={{ width: '10%' }} />}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => setUser(e.target.value)}
           placeholder="Usuário"
         />
-        <Input onChange={(e) => setPassword(e.target.value)} />
-        <button type="submit" disabled={disabled}>
+        <Input value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button
+          type="submit"
+          disabled={!user || !password || password.length < 6 ? true : false}
+        >
           Entrar
         </button>
       </form>

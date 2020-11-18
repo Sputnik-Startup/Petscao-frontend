@@ -24,6 +24,7 @@ const Input = React.forwardRef((props, ref) => {
           type={type}
           placeholder={props.placeholder || 'Senha'}
           ref={ref}
+          value={props.value}
           onChange={props.onChange}
         />
         {props.type !== 'text' &&

@@ -1,4 +1,12 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  } to {
+    opacity: 100;
+  }
+`;
 
 export const Container = styled.div`
   width: 100%;
@@ -8,6 +16,104 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
 
+  .delete-modal,
+  .edit-modal {
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #00000080;
+    animation: ${fadeIn} 0.3s ease;
+
+    form {
+      display: flex;
+      flex-direction: column;
+
+      .row {
+        display: flex;
+        margin-top: 20px;
+
+        button {
+          height: 40px;
+          width: 100%;
+          color: #fff;
+          transition: all 0.3s;
+          border-radius: 8px;
+
+          &:first-child {
+            margin-right: 10px;
+          }
+
+          &.yes {
+            background-color: #78cf9d;
+          }
+
+          &.blue {
+            background-color: #498bfc;
+          }
+
+          &:hover {
+            filter: brightness(0.95);
+          }
+        }
+      }
+
+      label {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+    }
+
+    .modal-window {
+      width: 300px;
+      &.w-500 {
+        width: 500px !important;
+      }
+      padding: 30px;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+
+      display: flex;
+      flex-direction: column;
+
+      h3 {
+        font-size: 22px;
+        margin-bottom: 20px;
+      }
+
+      .options {
+        button {
+          width: 100%;
+          padding: 10px;
+          color: #fff;
+          transition: all 0.3s;
+          border-radius: 8px;
+
+          &:first-child {
+            margin-right: 10px;
+          }
+
+          &.yes {
+            background-color: #78cf9d;
+          }
+
+          &.no {
+            background-color: #f76457;
+          }
+
+          &:hover {
+            filter: brightness(0.95);
+          }
+        }
+      }
+    }
+  }
   .content {
     display: flex;
     width: 100%;

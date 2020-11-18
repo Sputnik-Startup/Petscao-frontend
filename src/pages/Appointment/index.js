@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
-import { FiCalendar, FiEdit, FiSearch, FiTrash, FiUser } from 'react-icons/fi';
+import { FiCalendar, FiEdit, FiTrash } from 'react-icons/fi';
 
 import { Container } from './styles';
+import DatePicker from '../../components/DatePicker';
+import DateInput from '../../components/DateInput';
 
 function Appointment() {
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [updateDate, setUpdateDate] = useState(null);
+
   return (
     <Container>
       <ComponentHeader
@@ -30,8 +36,18 @@ function Appointment() {
               <span className="medium">Teddy</span>
               <span className="big">22/12/2020 às 14:00h</span>
               <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
+                <FiEdit
+                  size={22}
+                  color="#039cd8"
+                  title="Editar"
+                  onClick={() => setEditModal(true)}
+                />
+                <FiTrash
+                  size={22}
+                  color="#f55c4e"
+                  title="Deletar"
+                  onClick={() => setDeleteModal(true)}
+                />
               </span>
             </li>
             <li>
@@ -147,6 +163,36 @@ function Appointment() {
           </div>
         </div>
       </div>
+      {deleteModal && (
+        <div className="delete-modal">
+          <div className="modal-window">
+            <h3>Tem certeza?</h3>
+            <div className="options" style={{ display: 'flex' }}>
+              <button className="yes">Sim</button>
+              <button className="no" onClick={() => setDeleteModal(false)}>
+                Não
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {editModal && (
+        <div className="edit-modal">
+          <div className="modal-window w-500">
+            <form>
+              <label>Selecione uma data</label>
+              <DateInput setDate={setUpdateDate} date={updateDate} />
+
+              <div className="row">
+                <button className="yes">Salvar</button>
+                <button className="blue" onClick={() => setEditModal(false)}>
+                  Voltar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </Container>
   );
 }
