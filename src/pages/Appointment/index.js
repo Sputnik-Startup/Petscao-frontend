@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
 import { FiCalendar, FiEdit, FiTrash } from 'react-icons/fi';
 
 import { Container } from './styles';
-import DatePicker from '../../components/DatePicker';
 import DateInput from '../../components/DateInput';
 
 function Appointment() {
@@ -25,9 +24,9 @@ function Appointment() {
             <button>Criar Agendamento</button>
           </div>
           <label>
-            <span className="medium">Cliente</span>
-            <span className="medium">Pet</span>
-            <span className="big">Data/hora</span>
+            <span className="medium">cliente</span>
+            <span className="medium">pet</span>
+            <span className="big">data/hora</span>
             <span className="small"></span>
           </label>
           <ul>
@@ -143,19 +142,13 @@ function Appointment() {
           </ul>
         </div>
         <div className="cards">
-          <div
-            className="card-appointments"
-            style={{ backgroundColor: '#f76457' }}
-          >
+          <div className="card" style={{ backgroundColor: '#f76457' }}>
             <div className="circle" style={{ border: '5px solid #ff8075' }}>
               233
             </div>
             <span>Agendamentos Cancelados</span>
           </div>
-          <div
-            className="card-appointments"
-            style={{ backgroundColor: '#498bfc' }}
-          >
+          <div className="card" style={{ backgroundColor: '#498bfc' }}>
             <div className="circle" style={{ border: '5px solid #7dabfa' }}>
               3526
             </div>

@@ -134,13 +134,13 @@ export const Container = styled.div`
         margin-bottom: 20px;
         display: flex;
         justify-content: space-between;
+
         button {
           padding: 15px 20px;
           background-color: #78cf9d;
           color: #fff;
           border-radius: 8px;
           transition: all 0.3s;
-          margin-right: 10px;
 
           &:hover {
             filter: brightness(0.95);
@@ -165,19 +165,15 @@ export const Container = styled.div`
           font-size: 14px;
 
           &.big {
-            width: 45% !important;
+            width: 28% !important;
           }
 
           &.medium {
-            width: 35% !important;
-          }
-
-          &.medium-20 {
             width: 20% !important;
           }
 
           &.small {
-            width: 10% !important;
+            width: 13% !important;
           }
         }
       }
@@ -209,8 +205,8 @@ export const Container = styled.div`
 
           span {
             color: #333;
-            font-size: 14px;
             font-weight: 400;
+            font-size: 14px;
 
             svg {
               margin-right: 10px;
@@ -223,19 +219,15 @@ export const Container = styled.div`
             }
 
             &.big {
-              width: 45% !important;
+              width: 28% !important;
             }
 
             &.medium {
-              width: 35% !important;
-            }
-
-            &.medium-20 {
               width: 20% !important;
             }
 
             &.small {
-              width: 10% !important;
+              width: 13% !important;
             }
           }
         }

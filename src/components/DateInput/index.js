@@ -112,8 +112,9 @@ function DateInput(props) {
       <div className="hour-input">
         <input
           type="text"
-          placeholder="Selecione uma data"
+          placeholder={date ? 'Selecione uma hora' : 'Selecione uma data'}
           defaultValue={hours}
+          readOnly
           onFocus={() => setShowHours(true)}
           onClick={() => setShowHours(true)}
           onBlur={() => setShowHours(false)}

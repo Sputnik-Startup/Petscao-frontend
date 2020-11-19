@@ -6,13 +6,19 @@ import { Container } from './styles';
 import logo from '../../assets/logo.svg';
 import Input from '../../components/Input';
 
-function Signin() {
+function Signin({ history }) {
   const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
 
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    history.push('/dashboard');
+  }
+
   return (
     <Container>
-      <form>
+      <form onSubmit={handleSubmit}>
         <img src={logo} alt="logo" />
         <p>Bem vindo ao sistema Pet’scão</p>
         <Input
