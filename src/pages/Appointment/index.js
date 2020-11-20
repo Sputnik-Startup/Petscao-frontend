@@ -4,11 +4,16 @@ import { FiCalendar, FiEdit, FiTrash } from 'react-icons/fi';
 
 import { Container } from './styles';
 import DateInput from '../../components/DateInput';
+import CustomerPicker from '../../components/CustomerPicker';
+import PetPicker from '../../components/PetPicker';
 
 function Appointment() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [updateDate, setUpdateDate] = useState(null);
+  const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState({});
+  const [selectedPet, setSelectedPet] = useState({});
 
   return (
     <Container>
@@ -21,7 +26,9 @@ function Appointment() {
         <div className="list">
           <div className="title">
             <h3>Todos os Agendamentos</h3>
-            <button>Criar Agendamento</button>
+            <button onClick={() => setCreateAppointmentModal(true)}>
+              Criar Agendamento
+            </button>
           </div>
           <label>
             <span className="medium">cliente</span>
@@ -183,6 +190,33 @@ function Appointment() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {createAppointmentModal && (
+        <div className="create-modal">
+          <div className="modal">
+            <CustomerPicker
+              selectedCustomer={selectedCustomer}
+              setSelectedCustomer={setSelectedCustomer}
+            />
+            <PetPicker
+              hasCustomer={!!selectedCustomer.name}
+              selectedPet={selectedPet}
+              setSelectedPet={setSelectedPet}
+            />
+            <DateInput setDate={setUpdateDate} date={updateDate} />
+
+            <div className="row">
+              <button className="yes">Salvar</button>
+              <button
+                className="blue"
+                onClick={() => setCreateAppointmentModal(false)}
+              >
+                Voltar
+              </button>
+            </div>
           </div>
         </div>
       )}

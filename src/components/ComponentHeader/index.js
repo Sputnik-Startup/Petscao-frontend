@@ -5,7 +5,7 @@ function ComponentHeader({ title, icon, style }) {
     <header
       style={{
         display: 'flex',
-        alignItems: 'baseline',
+        alignItems: 'baseline !important',
         ...style,
       }}
     >

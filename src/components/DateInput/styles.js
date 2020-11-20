@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const Container = styled.div`
   display: flex;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 
   .calendar-modal {
     width: 100%;
