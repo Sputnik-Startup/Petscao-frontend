@@ -111,6 +111,7 @@ export const ContentContainer = styled.div`
           background-color: #fff;
           border-radius: 8px;
           box-shadow: 2px 2px 10px 3px #00000010;
+          padding: 0 10px;
 
           span {
             width: calc(100% / 3);

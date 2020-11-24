@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import { format, parseISO } from 'date-fns/esm';
+import { ptBR } from 'date-fns/esm/locale';
+import React, { useContext, useState } from 'react';
 import { FiHome } from 'react-icons/fi';
 import AppointmentGraph from '../../components/AppointmentGraph';
 import ComponentHeader from '../../components/ComponentHeader';
+import { UserContext } from '../../context/AuthContext';
+import api from '../../services/api';
 
 import { ContentContainer } from './styles';
 
@@ -9,55 +13,25 @@ function DashboardContent() {
   const [dayAppointment, setDayAppointment] = useState([]);
   const [day, setDay] = useState('');
 
-  function handleSelectDay(day) {
+  const { token } = useContext(UserContext);
+
+  async function handleSelectDay(day) {
     setDay(day);
-    setDayAppointment([
-      {
-        customer: {
-          name: 'João Paulo',
-        },
-        pet: {
-          name: 'Teddy',
-        },
-        date: '14:00',
+
+    const appointments = await api.get(`/company/appointment?day=${day}`, {
+      headers: {
+        authorization: `Bearer ${token}`,
       },
-      {
-        customer: {
-          name: 'João Paulo',
-        },
-        pet: {
-          name: 'Teddy',
-        },
-        date: '14:00',
-      },
-      {
-        customer: {
-          name: 'João Paulo',
-        },
-        pet: {
-          name: 'Teddy',
-        },
-        date: '14:00',
-      },
-      {
-        customer: {
-          name: 'João Paulo',
-        },
-        pet: {
-          name: 'Teddy',
-        },
-        date: '14:00',
-      },
-      {
-        customer: {
-          name: 'João Paulo',
-        },
-        pet: {
-          name: 'Teddy',
-        },
-        date: '14:00',
-      },
-    ]);
+    });
+
+    setDayAppointment((_) =>
+      appointments.data.map((app) => ({
+        ...app,
+        formatted_date: format(parseISO(app.date), "hh:mm'h'", {
+          locale: ptBR,
+        }),
+      }))
+    );
   }
 
   return (
@@ -75,44 +49,44 @@ function DashboardContent() {
           <span>Selecione um dia da semana</span>
           <ul className="weekdays">
             <li
-              onClick={() => handleSelectDay('dom')}
-              className={day === 'dom' ? 'selected' : null}
+              onClick={() => handleSelectDay('sun')}
+              className={day === 'sun' ? 'selected' : null}
             >
               Dom
             </li>
             <li
-              onClick={() => handleSelectDay('seg')}
-              className={day === 'seg' ? 'selected' : null}
+              onClick={() => handleSelectDay('mon')}
+              className={day === 'mon' ? 'selected' : null}
             >
               Seg
             </li>
             <li
-              onClick={() => handleSelectDay('ter')}
-              className={day === 'ter' ? 'selected' : null}
+              onClick={() => handleSelectDay('tue')}
+              className={day === 'tue' ? 'selected' : null}
             >
               Ter
             </li>
             <li
-              onClick={() => handleSelectDay('qua')}
-              className={day === 'qua' ? 'selected' : null}
+              onClick={() => handleSelectDay('wed')}
+              className={day === 'wed' ? 'selected' : null}
             >
               Qua
             </li>
             <li
-              onClick={() => handleSelectDay('qui')}
-              className={day === 'qui' ? 'selected' : null}
+              onClick={() => handleSelectDay('thu')}
+              className={day === 'thu' ? 'selected' : null}
             >
               Qui
             </li>
             <li
-              onClick={() => handleSelectDay('sex')}
-              className={day === 'sex' ? 'selected' : null}
+              onClick={() => handleSelectDay('fri')}
+              className={day === 'fri' ? 'selected' : null}
             >
               Sex
             </li>
             <li
-              onClick={() => handleSelectDay('sab')}
-              className={day === 'sab' ? 'selected' : null}
+              onClick={() => handleSelectDay('sat')}
+              className={day === 'sat' ? 'selected' : null}
             >
               Sab
             </li>
@@ -131,7 +105,7 @@ function DashboardContent() {
                   </span>
                   <span>
                     <strong>Hora:</strong>
-                    {appointment.date}h
+                    {appointment.formatted_date}
                   </span>
                 </li>
               ))

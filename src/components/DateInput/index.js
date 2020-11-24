@@ -2,6 +2,7 @@ import { format } from 'date-fns/esm';
 import { ptBR } from 'date-fns/esm/locale';
 import React, { useEffect, useState } from 'react';
 import DatePicker from '../../components/DatePicker';
+import api from '../../services/api';
 
 import { Container } from './styles';
 
@@ -77,22 +78,28 @@ function DateInput(props) {
   const [showHours, setShowHours] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [date, setDate] = useState(null);
-  const [hours, setHours] = useState('');
+  const [hour, setHour] = useState('');
+  const [hours, setHours] = useState([]);
 
   useEffect(
-    () => props.setDate(`${date ? format(date, 'yyyy-mm-dd') : ''} ${hours}`),
+    () => props.setDate(`${date ? format(date, 'yyyy-MM-dd') : ''} ${hour}`),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [date, hours]
+    [date, hour]
   );
-  useEffect(() => console.log(props.date), []);
 
-  function onSelectDate(date) {
+  async function onSelectDate(date) {
     setDate(date);
     setShowCalendar(false);
+    const dateFormated = format(date, 'yyyy-MM-dd', { locale: ptBR });
+    const response = await api.get(
+      `/appointment/available?date=${dateFormated}`
+    );
+
+    setHours(response.data);
   }
 
   function selectHour(hour) {
-    setHours(hour);
+    setHour(hour);
     setShowHours(false);
   }
 
@@ -113,7 +120,7 @@ function DateInput(props) {
         <input
           type="text"
           placeholder={date ? 'Selecione uma hora' : 'Selecione uma data'}
-          defaultValue={hours}
+          defaultValue={hour}
           readOnly
           onFocus={() => setShowHours(true)}
           onClick={() => setShowHours(true)}
@@ -121,10 +128,11 @@ function DateInput(props) {
         />
         {showHours && date && (
           <ul className="hour-dropdown">
-            {hoursArr.map((hour) => {
+            {hours.map((hour) => {
               if (hour.available) {
                 return (
                   <li
+                    key={hour.value}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => selectHour(hour.time)}
                   >

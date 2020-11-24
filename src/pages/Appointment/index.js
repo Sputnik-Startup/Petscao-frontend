@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
-import { FiCalendar, FiEdit, FiTrash } from 'react-icons/fi';
+import { FiAlertCircle, FiCalendar, FiEdit, FiTrash } from 'react-icons/fi';
 
 import { Container } from './styles';
 import DateInput from '../../components/DateInput';
 import CustomerPicker from '../../components/CustomerPicker';
 import PetPicker from '../../components/PetPicker';
+import api from '../../services/api';
+import { UserContext } from '../../context/AuthContext';
+import { format } from 'date-fns/esm';
+import { isBefore, parseISO } from 'date-fns';
+import { ToastContext } from '../../context/ToastContext';
+import { ptBR } from 'date-fns/esm/locale';
 
 function Appointment() {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -14,6 +20,196 @@ function Appointment() {
   const [createAppointmentModal, setCreateAppointmentModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState({});
   const [selectedPet, setSelectedPet] = useState({});
+  const [selectedAppointment, setSelectedAppointment] = useState({});
+
+  const [appointments, setAppointments] = useState([]);
+
+  const { token } = useContext(UserContext);
+  const { showToast, hideToast } = useContext(ToastContext);
+
+  useEffect(() => {
+    (async () => {
+      const response = await api.get('/company/appointment', {
+        headers: { authorization: `Bearer ${token}` },
+      });
+
+      setAppointments((_) =>
+        response.data.map((app) => ({
+          ...app,
+          formatted_date: format(
+            parseISO(app.date),
+            "dd/MM/yyyy à's' HH:mm'h'",
+            {
+              locale: ptBR,
+            }
+          ),
+        }))
+      );
+    })();
+  }, [token]);
+
+  function openDeleteModal(appointment) {
+    setSelectedAppointment(appointment);
+
+    setDeleteModal(true);
+  }
+
+  function openEditModal(appointment) {
+    setSelectedAppointment(appointment);
+
+    setEditModal(true);
+  }
+
+  function closeModal() {
+    setSelectedAppointment({});
+    setSelectedCustomer({});
+    setSelectedPet({});
+    setUpdateDate('');
+
+    if (editModal) setEditModal(false);
+    if (deleteModal) setDeleteModal(false);
+    if (createAppointmentModal) setCreateAppointmentModal(false);
+  }
+
+  async function editAppointment(e) {
+    e.preventDefault();
+    if (
+      /^[0-9][0-9][0-9][0-9]+-[0-9][0-9]+-[0-9][0-9] [0-9][0-9]+:[0-9][0-9]/g.test(
+        updateDate
+      )
+    ) {
+      try {
+        const response = await api({
+          method: 'put',
+          url: `/company/appointment/${selectedAppointment.id}`,
+          data: {
+            date: new Date(updateDate),
+          },
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
+        hideToast();
+        if (response.data.error) {
+          showToast('Erro ao atualizar agendamento');
+        } else {
+          setAppointments((state) =>
+            state.map((appointment) => {
+              if (appointment.id === response.data.id) {
+                return {
+                  ...response.data,
+                  formatted_date: format(
+                    parseISO(response.data.date),
+                    "dd/MM/yyyy à's' HH:mm'h'",
+                    {
+                      locale: ptBR,
+                    }
+                  ),
+                };
+              }
+
+              return { ...appointment };
+            })
+          );
+
+          closeModal();
+        }
+      } catch (error) {
+        showToast(error.response.data.error);
+      }
+    } else {
+      showToast('Selecione a data e a hora');
+    }
+  }
+
+  async function createAppointment() {
+    if (!selectedCustomer.id) {
+      showToast('Selecione um cliente');
+      return;
+    } else if (!selectedPet.id) {
+      showToast('Selecione um pet');
+      return;
+    } else if (!updateDate) {
+      showToast('Selecione uma data');
+      return;
+    }
+
+    if (
+      /^[0-9][0-9][0-9][0-9]+-[0-9][0-9]+-[0-9][0-9] [0-9][0-9]+:[0-9][0-9]/g.test(
+        updateDate
+      )
+    ) {
+      try {
+        const response = await api({
+          method: 'post',
+          url: '/company/appointment',
+          data: {
+            user_id: selectedCustomer.id,
+            pet_id: selectedPet.id,
+            date: new Date(updateDate),
+          },
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.tron({
+          ...response.data,
+          formatted_date: format(
+            parseISO(response.data.date),
+            "dd/MM/yyyy à's' HH:mm'h'",
+            {
+              locale: ptBR,
+            }
+          ),
+        });
+
+        setAppointments((state) => [
+          {
+            ...response.data,
+            formatted_date: format(
+              parseISO(response.data.date),
+              "dd/MM/yyyy à's' HH:mm'h'",
+              {
+                locale: ptBR,
+              }
+            ),
+          },
+          ...state,
+        ]);
+        closeModal();
+      } catch (error) {
+        showToast(error.response.data.error || 'teste');
+      }
+    } else {
+      showToast('Selecione a data e a hora');
+    }
+  }
+
+  async function deleteAppointment() {
+    try {
+      await api({
+        method: 'delete',
+        url: `/company/appointment/${selectedAppointment.id}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      setAppointments((state) =>
+        state.filter((app) => app.id !== selectedAppointment.id)
+      );
+
+      showToast(
+        'Agendamento deletado com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
+
+      closeModal();
+    } catch (error) {
+      showToast(error.response.data.error);
+    }
+  }
 
   return (
     <Container>
@@ -37,115 +233,27 @@ function Appointment() {
             <span className="small"></span>
           </label>
           <ul>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit
-                  size={22}
-                  color="#039cd8"
-                  title="Editar"
-                  onClick={() => setEditModal(true)}
-                />
-                <FiTrash
-                  size={22}
-                  color="#f55c4e"
-                  title="Deletar"
-                  onClick={() => setDeleteModal(true)}
-                />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
-            <li>
-              <span className="medium">José Carlos</span>
-              <span className="medium">Teddy</span>
-              <span className="big">22/12/2020 às 14:00h</span>
-              <span className="small">
-                <FiEdit size={22} color="#039cd8" title="Editar" />
-                <FiTrash size={22} color="#f55c4e" title="Deletar" />
-              </span>
-            </li>
+            {appointments.map((appointment) => (
+              <li key={appointment.id}>
+                <span className="medium">{appointment.customer.name}</span>
+                <span className="medium">{appointment.pet.name}</span>
+                <span className="big">{appointment.formatted_date}</span>
+                <span className="small">
+                  <FiEdit
+                    size={22}
+                    color="#039cd8"
+                    title="Editar"
+                    onClick={() => openEditModal(appointment)}
+                  />
+                  <FiTrash
+                    size={22}
+                    color="#f55c4e"
+                    title="Deletar"
+                    onClick={() => openDeleteModal(appointment)}
+                  />
+                </span>
+              </li>
+            ))}
           </ul>
         </div>
         <div className="cards">
@@ -168,8 +276,10 @@ function Appointment() {
           <div className="modal-window">
             <h3>Tem certeza?</h3>
             <div className="options" style={{ display: 'flex' }}>
-              <button className="yes">Sim</button>
-              <button className="no" onClick={() => setDeleteModal(false)}>
+              <button className="yes" onClick={deleteAppointment}>
+                Sim
+              </button>
+              <button className="no" onClick={closeModal}>
                 Não
               </button>
             </div>
@@ -184,8 +294,10 @@ function Appointment() {
               <DateInput setDate={setUpdateDate} date={updateDate} />
 
               <div className="row">
-                <button className="yes">Salvar</button>
-                <button className="blue" onClick={() => setEditModal(false)}>
+                <button className="yes" onClick={editAppointment}>
+                  Salvar
+                </button>
+                <button className="blue" onClick={closeModal}>
                   Voltar
                 </button>
               </div>
@@ -203,17 +315,17 @@ function Appointment() {
             />
             <PetPicker
               hasCustomer={!!selectedCustomer.name}
+              owner={selectedCustomer?.id}
               selectedPet={selectedPet}
               setSelectedPet={setSelectedPet}
             />
             <DateInput setDate={setUpdateDate} date={updateDate} />
 
             <div className="row">
-              <button className="yes">Salvar</button>
-              <button
-                className="blue"
-                onClick={() => setCreateAppointmentModal(false)}
-              >
+              <button className="yes" onClick={createAppointment}>
+                Salvar
+              </button>
+              <button className="blue" onClick={closeModal}>
                 Voltar
               </button>
             </div>

@@ -2,12 +2,13 @@ import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import SignIn from './pages/SignIn';
+import PrivateRoute from './utils/PrivateRoute';
 
 const Routes = () => {
   return (
     <BrowserRouter>
       <Route exact path="/" component={SignIn} />
-      <Route path="/dashboard" component={Dashboard} />
+      <PrivateRoute path="/dashboard" component={Dashboard} />
     </BrowserRouter>
   );
 };

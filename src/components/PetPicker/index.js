@@ -1,10 +1,31 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
+import { UserContext } from '../../context/AuthContext';
+import api from '../../services/api';
 
 import { Container } from './styles';
 
 function PetPicker(props) {
   const [modal, setModal] = useState(false);
+  const [pets, setPets] = useState([]);
+
+  const { token } = useContext(UserContext);
+
+  useEffect(() => {
+    (async () => {
+      if (props.owner) {
+        const response = await api({
+          method: 'get',
+          url: `/company/pet?c=${props.owner}`,
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
+
+        setPets(response.data);
+      }
+    })();
+  }, [props.owner]);
 
   function onSelect(Pet) {
     setModal(false);
@@ -20,8 +41,14 @@ function PetPicker(props) {
         Selecionar pet
       </button>
       <div className="selected">
-        {props.selectedPet.avatar_url && (
-          <img src={props.selectedPet.avatar_url} alt="profile" />
+        {props.selectedPet.name && (
+          <img
+            src={
+              props.selectedPet?.avatar?.url ||
+              'https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Dog-512.png'
+            }
+            alt="profile"
+          />
         )}
         <span>
           {props.selectedPet.name
@@ -38,56 +65,27 @@ function PetPicker(props) {
             <button onClick={() => setModal(false)}>
               <FiX color="#fff" size={16} />
             </button>
-            <header>
-              <input
-                type="text"
-                name="search"
-                id="search"
-                placeholder="Pesquisar"
-              />
-            </header>
             <div className="labels">
               <span className="small">avatar</span>
               <span className="big">nome</span>
               <span classname="medium">raça</span>
             </div>
             <ul>
-              <li
-                onClick={() =>
-                  onSelect({
-                    avatar_url:
-                      'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1.00xw:0.669xh;0,0.190xh&resize=1200:*',
-                    name: 'Teddy',
-                  })
-                }
-              >
-                <span className="small">
-                  <img
-                    src="https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1.00xw:0.669xh;0,0.190xh&resize=1200:*"
-                    alt="profile"
-                  />
-                </span>
-                <span className="big">Teddy</span>
-                <span classname="medium">buldog</span>
-              </li>
-              <li
-                onClick={() =>
-                  onSelect({
-                    avatar_url:
-                      'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1.00xw:0.669xh;0,0.190xh&resize=1200:*',
-                    name: 'Teddy',
-                  })
-                }
-              >
-                <span className="small">
-                  <img
-                    src="https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1.00xw:0.669xh;0,0.190xh&resize=1200:*"
-                    alt="profile"
-                  />
-                </span>
-                <span className="big">Teddy</span>
-                <span classname="medium">buldog</span>
-              </li>
+              {pets.map((pet) => (
+                <li onClick={() => onSelect(pet)}>
+                  <span className="small">
+                    <img
+                      src={
+                        pet.avatar?.url ||
+                        'https://cdn3.iconfinder.com/data/icons/avatars-9/145/Avatar_Dog-512.png'
+                      }
+                      alt="profile"
+                    />
+                  </span>
+                  <span className="big">{pet.name}</span>
+                  <span classname="medium">{pet.breed}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

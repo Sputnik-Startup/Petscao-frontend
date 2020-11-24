@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FiBell, FiSearch, FiUser, FiLogOut } from 'react-icons/fi';
 import { Container } from './styles';
 import profile from '../../assets/54994420.jfif';
+import { useHistory } from 'react-router-dom';
+import { UserContext } from '../../context/AuthContext';
 
 function NavBar({ notifications }) {
   const [openNotification, setOpenNotifications] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
+  const history = useHistory();
+
+  const { user, removeToken } = useContext(UserContext);
 
   useEffect(() => {
     let clpNotificationRef = document.querySelector('.bell');
@@ -20,7 +25,10 @@ function NavBar({ notifications }) {
       }
     });
 
-    return () =>
+    return () => {
+      let clpNotificationRef = document.querySelector('.bell');
+      let clpProfileRef = document.querySelector('.profile');
+
       document.removeEventListener('click', (e) => {
         if (clpNotificationRef && !clpNotificationRef.contains(e.target)) {
           setOpenNotifications(false);
@@ -30,6 +38,8 @@ function NavBar({ notifications }) {
           setOpenProfile(false);
         }
       });
+    };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -104,8 +114,8 @@ function NavBar({ notifications }) {
         </div>
         <div className="profile">
           <button onClick={openProfileWindow}>
-            <img src={profile} alt="profile" />
-            <span>Maxwell Olliver</span>
+            <img src={user?.avatar?.url || ''} alt="profile" />
+            <span>{user?.name || ''}</span>
           </button>
 
           {openProfile && (
@@ -114,7 +124,12 @@ function NavBar({ notifications }) {
                 <FiUser size={18} color="#639fff" />
                 <span>Meu perfil</span>
               </li>
-              <li>
+              <li
+                onClick={() => {
+                  removeToken();
+                  history.push('/');
+                }}
+              >
                 <FiLogOut size={18} color="#f26d6d" />
                 <span>Sair</span>
               </li>

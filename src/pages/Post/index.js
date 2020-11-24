@@ -197,10 +197,10 @@ function Post() {
                   <h3>Roberto Freitas</h3>
                   <span>Lorem ipsum a asdoiasjdo ooo asdm</span>
                   <div className="reply">
-                    <span onClick={() => setCommentModal(true)}>Responder</span>
                     <span onClick={() => setCommentModal(true)}>
-                      Ver respostas
+                      5 respostas
                     </span>
+                    <span onClick={() => setCommentModal(true)}>Responder</span>
                   </div>
                 </div>
               </li>

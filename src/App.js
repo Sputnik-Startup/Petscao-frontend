@@ -7,14 +7,17 @@ import { ToastProvider } from './context/ToastContext';
 import { ModalWrap } from './components/Modal';
 
 import './ReactotronConfig';
+import { UserProvider } from './context/AuthContext';
 
 function App() {
   return (
     <ToastProvider>
-      <Global />
-      <ModalWrap>
-        <Routes />
-      </ModalWrap>
+      <UserProvider>
+        <Global />
+        <ModalWrap>
+          <Routes />
+        </ModalWrap>
+      </UserProvider>
     </ToastProvider>
   );
 }

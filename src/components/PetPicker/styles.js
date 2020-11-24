@@ -78,25 +78,11 @@ export const Container = styled.div`
         right: 0;
       }
 
-      header {
-        height: 50px;
-        width: 100%;
-        margin-bottom: 10px;
-        border-radius: 8px 8px 0 0;
-
-        input {
-          height: 100%;
-          width: 100%;
-          background-color: transparent;
-          padding: 0 20px;
-          border-radius: 8px 8px 0 0;
-        }
-      }
-
       .labels {
         display: flex;
         width: 100%;
         height: 30px;
+        align-items: center;
         list-style: none;
         padding-left: 40px;
         padding-right: 20px;

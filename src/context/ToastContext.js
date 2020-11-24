@@ -4,6 +4,8 @@ export const ToastContext = createContext({
   show: false,
   content: '',
   Icon: null,
+  showToast: () => {},
+  hideToast: () => {},
 });
 
 export function ToastProvider({ children }) {

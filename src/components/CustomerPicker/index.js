@@ -1,22 +1,55 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
+import { UserContext } from '../../context/AuthContext';
+import api from '../../services/api';
 
 import { Container } from './styles';
 
 function CustomerPicker(props) {
   const [modal, setModal] = useState(false);
+  const [customers, setCustomers] = useState([]);
+
+  const { token } = useContext(UserContext);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await api({
+          method: 'get',
+          url: '/company/customer',
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
+
+        setCustomers(response.data);
+      } catch (error) {}
+    })();
+  }, []);
 
   function onSelect(customer) {
     setModal(false);
     props.setSelectedCustomer(customer);
   }
 
+  async function search(e) {
+    const response = await api({
+      method: 'get',
+      url: `/company/customer?q=${e.target.value}`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    setCustomers(response.data);
+  }
+
   return (
     <Container>
       <button onClick={() => setModal(true)}>Selecionar cliente</button>
       <div className="selected">
-        {props.selectedCustomer.avatar_url && (
-          <img src={props.selectedCustomer.avatar_url} alt="profile" />
+        {props.selectedCustomer.avatar && (
+          <img src={props.selectedCustomer.avatar.url} alt="profile" />
         )}
         <span>{props.selectedCustomer.name || 'Selecione um cliente'}</span>
       </div>
@@ -33,6 +66,7 @@ function CustomerPicker(props) {
                 name="search"
                 id="search"
                 placeholder="Pesquisar"
+                onChange={search}
               />
             </header>
             <div className="labels">
@@ -41,64 +75,15 @@ function CustomerPicker(props) {
               <span classname="medium">cpf</span>
             </div>
             <ul>
-              <li
-                onClick={() =>
-                  onSelect({
-                    avatar_url:
-                      'https://areademulher.r7.com/wp-content/uploads/2020/09/lucas-selfie-quem-e-960x540.png',
-                    name: 'José Carlos',
-                  })
-                }
-              >
-                <span className="small">
-                  <img
-                    src="https://areademulher.r7.com/wp-content/uploads/2020/09/lucas-selfie-quem-e-960x540.png"
-                    alt="profile"
-                  />
-                </span>
-                <span className="big">José Carlos</span>
-                <span classname="medium">125.256.332-33</span>
-              </li>
-              <li>
-                <span className="small">
-                  <img
-                    src="https://areademulher.r7.com/wp-content/uploads/2020/09/lucas-selfie-quem-e-960x540.png"
-                    alt="profile"
-                  />
-                </span>
-                <span className="big">José Carlos</span>
-                <span classname="medium">125.256.332-33</span>
-              </li>
-              <li>
-                <span className="small">
-                  <img
-                    src="https://areademulher.r7.com/wp-content/uploads/2020/09/lucas-selfie-quem-e-960x540.png"
-                    alt="profile"
-                  />
-                </span>
-                <span className="big">José Carlos</span>
-                <span classname="medium">125.256.332-33</span>
-              </li>
-              <li>
-                <span className="small">
-                  <img
-                    src="https://areademulher.r7.com/wp-content/uploads/2020/09/lucas-selfie-quem-e-960x540.png"
-                    alt="profile"
-                  />
-                </span>
-                <span className="big">José Carlos</span>
-                <span classname="medium">125.256.332-33</span>
-              </li>
-              <li>
-                <span className="small">
-                  <img
-                    src="https://areademulher.r7.com/wp-content/uploads/2020/09/lucas-selfie-quem-e-960x540.png"
-                    alt="profile"
-                  />
-                </span>
-                <span className="big">José Carlos</span>
-                <span classname="medium">125.256.332-33</span>
-              </li>
+              {customers.map((cust) => (
+                <li onClick={() => onSelect(cust)}>
+                  <span className="small">
+                    <img src={cust.avatar.url} alt="profile" />
+                  </span>
+                  <span className="big">{cust.name}</span>
+                  <span classname="medium">{cust.cpf}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

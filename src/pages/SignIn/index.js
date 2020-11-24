@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FiMail } from 'react-icons/fi';
 
 import { Container } from './styles';
 
 import logo from '../../assets/logo.svg';
 import Input from '../../components/Input';
+import { UserContext } from '../../context/AuthContext';
 
 function Signin({ history }) {
   const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
 
+  const { handleSignIn } = useContext(UserContext);
+
   function handleSubmit(e) {
     e.preventDefault();
 
-    history.push('/dashboard');
+    handleSignIn(user, password, history);
   }
 
   return (
