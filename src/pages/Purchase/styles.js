@@ -17,7 +17,8 @@ export const Container = styled.div`
   flex-direction: column;
 
   .delete-modal,
-  .edit-modal {
+  .edit-modal,
+  .create-modal {
     width: 100%;
     height: 100vh;
     position: fixed;
@@ -32,44 +33,70 @@ export const Container = styled.div`
     animation: ${fadeIn} 0.3s ease;
 
     form {
+      width: 100%;
+
       display: flex;
       flex-direction: column;
 
-      .row {
-        display: flex;
-        margin-top: 20px;
-
-        button {
-          height: 40px;
-          width: 100%;
-          color: #fff;
-          transition: all 0.3s;
-          border-radius: 8px;
-
-          &:first-child {
-            margin-right: 10px;
-          }
-
-          &.yes {
-            background-color: #78cf9d;
-          }
-
-          &.blue {
-            background-color: #498bfc;
-          }
-
-          &:hover {
-            filter: brightness(0.95);
-          }
-        }
-      }
-
       label {
         font-size: 14px;
+        margin-left: 10px;
+        margin-bottom: 5px;
+      }
+
+      input {
+        height: 40px;
+        width: 100%;
+        box-shadow: 0 0 20px 10px #00000010;
+        border-radius: 8px;
+        padding: 0 10px;
+      }
+
+      p.error {
+        font-size: 12px;
+        color: #fc5656;
         margin-bottom: 10px;
+        margin-left: 10px;
       }
     }
 
+    .modal {
+      width: 500px;
+      border-radius: 8px;
+      background-color: #f5f5f5;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .row {
+      display: flex;
+      margin-top: 20px;
+
+      button {
+        height: 40px;
+        width: 100%;
+        color: #fff;
+        transition: all 0.3s;
+        border-radius: 8px;
+
+        &:first-child {
+          margin-right: 10px;
+        }
+
+        &.yes {
+          background-color: #78cf9d;
+        }
+
+        &.blue {
+          background-color: #498bfc;
+        }
+
+        &:hover {
+          filter: brightness(0.95);
+        }
+      }
+    }
     .modal-window {
       width: 300px;
       &.w-500 {
@@ -163,18 +190,14 @@ export const Container = styled.div`
         span {
           color: #b5b5b5;
           font-size: 14px;
+        }
 
-          &.big {
-            width: 28% !important;
-          }
+        .big {
+          width: 40% !important;
+        }
 
-          &.medium {
-            width: 20% !important;
-          }
-
-          &.small {
-            width: 13% !important;
-          }
+        .small {
+          width: 20% !important;
         }
       }
 
@@ -217,18 +240,13 @@ export const Container = styled.div`
               justify-content: center;
               align-items: center;
             }
+          }
+          .big {
+            width: 40% !important;
+          }
 
-            &.big {
-              width: 28% !important;
-            }
-
-            &.medium {
-              width: 20% !important;
-            }
-
-            &.small {
-              width: 13% !important;
-            }
+          .small {
+            width: 20% !important;
           }
         }
       }

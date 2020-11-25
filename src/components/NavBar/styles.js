@@ -106,6 +106,19 @@ export const Container = styled.div`
             cursor: pointer;
             transition: all 0.3s;
 
+            &.no-notifications {
+              justify-content: center;
+              color: #b3b3b3;
+              font-weight: 400;
+              font-size: 14px;
+              background-color: #fff;
+              cursor: default;
+
+              &:hover {
+                filter: brightness(1);
+              }
+            }
+
             &:hover {
               filter: brightness(0.95);
             }

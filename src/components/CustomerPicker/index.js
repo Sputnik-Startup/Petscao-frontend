@@ -72,16 +72,16 @@ function CustomerPicker(props) {
             <div className="labels">
               <span className="small">avatar</span>
               <span className="big">nome</span>
-              <span classname="medium">cpf</span>
+              <span className="medium">cpf</span>
             </div>
             <ul>
               {customers.map((cust) => (
-                <li onClick={() => onSelect(cust)}>
+                <li onClick={() => onSelect(cust)} key={cust.id}>
                   <span className="small">
                     <img src={cust.avatar.url} alt="profile" />
                   </span>
                   <span className="big">{cust.name}</span>
-                  <span classname="medium">{cust.cpf}</span>
+                  <span className="medium">{cust.cpf}</span>
                 </li>
               ))}
             </ul>

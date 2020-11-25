@@ -153,17 +153,6 @@ function Appointment() {
           },
         });
 
-        console.tron({
-          ...response.data,
-          formatted_date: format(
-            parseISO(response.data.date),
-            "dd/MM/yyyy à's' HH:mm'h'",
-            {
-              locale: ptBR,
-            }
-          ),
-        });
-
         setAppointments((state) => [
           {
             ...response.data,

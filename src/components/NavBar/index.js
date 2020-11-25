@@ -4,13 +4,19 @@ import { Container } from './styles';
 import profile from '../../assets/54994420.jfif';
 import { useHistory } from 'react-router-dom';
 import { UserContext } from '../../context/AuthContext';
+import { formatRelative } from 'date-fns/esm';
+import { parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-function NavBar({ notifications }) {
+function NavBar({ notificationsProp = [] }) {
   const [openNotification, setOpenNotifications] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const history = useHistory();
 
   const { user, removeToken } = useContext(UserContext);
+
+  useEffect(() => setNotifications(notificationsProp), [notificationsProp]);
 
   useEffect(() => {
     let clpNotificationRef = document.querySelector('.bell');
@@ -47,6 +53,14 @@ function NavBar({ notifications }) {
     if (openNotification) {
       setOpenNotifications(false);
     } else {
+      setNotifications((state) =>
+        state.map((noti) => {
+          if (!noti.read) {
+            noti.read = true;
+          }
+          return noti;
+        })
+      );
       setOpenNotifications(true);
     }
   }
@@ -67,7 +81,12 @@ function NavBar({ notifications }) {
       </div>
       <div className="nav-actions">
         <div className="bell">
-          <div className="notifications">3</div>
+          {notifications[0] && notifications.find((noti) => !noti.read) && (
+            <div className="notifications">
+              {notifications.filter((noti) => noti.read === false).length}
+            </div>
+          )}
+
           <FiBell size={24} color="#fff" onClick={openNotificationWindow} />
 
           {openNotification && (
@@ -75,39 +94,34 @@ function NavBar({ notifications }) {
               <div className="arrow"></div>
               <h4>Notificações</h4>
               <ul>
-                <li>
-                  <img src={profile} alt="notification-thumb" />
-                  <div className="info">
-                    <p>
-                      <strong>Aniversariante</strong>hoje é aniversário de
-                      Maxwell Olliver
-                    </p>
-                    <span>há 4 min atrás</span>
-                  </div>
-                </li>
-                <li>
-                  <img src={profile} alt="notification-thumb" />
-                  <div className="info">
-                    <p>
-                      <strong>Aniversariante</strong>hoje é aniversário de
-                      Maxwell Olliver
-                    </p>
-                    <span>há 4 min atrás</span>
-                  </div>
-                </li>
-                <li>
-                  <img src={profile} alt="notification-thumb" />
-                  <div className="info">
-                    <p>
-                      <strong>Aniversariante</strong>hoje é aniversário de
-                      Maxwell Olliver
-                    </p>
-                    <span>há 4 min atrás</span>
-                  </div>
-                </li>
-                <li className="see-all">
-                  <span>Ver todas as notificações</span>
-                </li>
+                {notifications[0] &&
+                  notifications.map((noti) => (
+                    <li>
+                      <img src={profile} alt="notification-thumb" />
+                      <div className="info">
+                        <p>
+                          <strong>{noti.title}</strong>
+                          {noti.content}
+                        </p>
+                        <span>
+                          {formatRelative(
+                            parseISO(noti.createdAt),
+                            new Date(),
+                            { locale: ptBR }
+                          )}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                {notifications[0] ? (
+                  <li className="see-all">
+                    <span>Ver todas as notificações</span>
+                  </li>
+                ) : (
+                  <li className="no-notifications">
+                    <span>Nenhuma notificação</span>
+                  </li>
+                )}
               </ul>
             </div>
           )}

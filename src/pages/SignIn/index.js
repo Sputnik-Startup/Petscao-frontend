@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FiMail } from 'react-icons/fi';
 
 import { Container } from './styles';
@@ -18,6 +18,10 @@ function Signin({ history }) {
 
     handleSignIn(user, password, history);
   }
+
+  useEffect(
+    () => localStorage.getItem('PC_TOKEN') && history.push('/dashboard')
+  );
 
   return (
     <Container>

@@ -72,7 +72,7 @@ function PetPicker(props) {
             </div>
             <ul>
               {pets.map((pet) => (
-                <li onClick={() => onSelect(pet)}>
+                <li onClick={() => onSelect(pet)} key={pet.id}>
                   <span className="small">
                     <img
                       src={
