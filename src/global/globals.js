@@ -9,7 +9,7 @@ export const Global = createGlobalStyle`
     box-sizing: border-box;
   }
 
-  html, body, input, button {
+  html, body, input, button, select {
     font-family: 'Roboto', Arial, Helvetica, sans-serif;
     font-weight: 500;
     color: #333;

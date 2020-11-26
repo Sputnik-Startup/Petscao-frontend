@@ -84,6 +84,9 @@ export const Container = styled.div`
       &.w-500 {
         width: 500px !important;
       }
+      &.w-900 {
+        width: 70% !important;
+      }
       padding: 30px;
       background-color: #f5f5f5;
       border-radius: 8px;

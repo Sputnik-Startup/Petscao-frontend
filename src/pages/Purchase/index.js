@@ -87,10 +87,13 @@ function Purchases() {
     const value =
       Number(price.replace('.', '').replace(',', '.')) -
       Number(descount.replace('.', '').replace(',', '.'));
-    setValue(
-      'total_price',
-      value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-    );
+
+    if (value >= 0) {
+      setValue(
+        'total_price',
+        value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      );
+    }
   }
 
   function setTotalPrice2() {
@@ -100,10 +103,13 @@ function Purchases() {
     const value =
       Number(price.replace('.', '').replace(',', '.')) -
       Number(descount.replace('.', '').replace(',', '.'));
-    setValue2(
-      'total_price',
-      value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-    );
+
+    if (value >= 0) {
+      setValue2(
+        'total_price',
+        value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      );
+    }
   }
 
   const handleEditPurchase = async (data) => {
@@ -118,8 +124,6 @@ function Purchases() {
           authorization: `Bearer ${token}`,
         },
       });
-
-      console.log(response.data);
 
       setPurchases((state) =>
         state.map((purc) => {
