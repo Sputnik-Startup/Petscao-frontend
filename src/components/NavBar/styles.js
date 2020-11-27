@@ -69,6 +69,7 @@ export const Container = styled.div`
 
         border-radius: 8px;
         box-shadow: 0 0 20px 10px #0000000a;
+        z-index: 99999;
 
         .arrow {
           position: absolute;
@@ -167,6 +168,7 @@ export const Container = styled.div`
 
               span {
                 font-size: 12px;
+                color: #b3b3b3;
               }
             }
 

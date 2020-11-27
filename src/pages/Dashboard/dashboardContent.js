@@ -1,17 +1,35 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { format, parseISO } from 'date-fns/esm';
 import { ptBR } from 'date-fns/esm/locale';
-import React, { useContext, useState } from 'react';
 import { FiHome } from 'react-icons/fi';
+import socketioclient from 'socket.io-client';
+
 import AppointmentGraph from '../../components/AppointmentGraph';
 import ComponentHeader from '../../components/ComponentHeader';
 import { UserContext } from '../../context/AuthContext';
 import api from '../../services/api';
 
 import { ContentContainer } from './styles';
+import { RealTimeAppointmentContext } from '../../context/RealTimeAppointment';
 
 function DashboardContent() {
   const [dayAppointment, setDayAppointment] = useState([]);
   const [day, setDay] = useState('');
+  const { rtAppointment, setRtAppointment } = useContext(
+    RealTimeAppointmentContext
+  );
+
+  useEffect(() => {
+    const tk = localStorage.getItem('PC_TOKEN');
+
+    const socket = socketioclient('http://localhost:3333', {
+      query: {
+        token: tk,
+      },
+    });
+
+    socket.on('new-appointment', (data) => setRtAppointment(data.appointment));
+  }, []);
 
   const { token } = useContext(UserContext);
 
@@ -118,30 +136,40 @@ function DashboardContent() {
         <div className="last-appointment">
           <h3>Último agendamento</h3>
           <span>Último agendamento registrado. Informação em tempo real</span>
-          <div className="appointment">
-            <div className="column">
-              <img
-                src="https://somos.lojaiplace.com.br/wp-content/uploads/2018/10/app-retoca-selfie.jpg"
-                alt="customer"
-              />
-              <span>Carla Oliveira</span>
+          {rtAppointment ? (
+            <>
+              <div className="appointment">
+                <div className="column">
+                  <img src={rtAppointment.customer.avatar.url} alt="customer" />
+                  <span>{rtAppointment.customer.name}</span>
+                </div>
+                <div className="column">
+                  <img src={rtAppointment.pet.avatar.url} alt="pet" />
+                  <span>{rtAppointment.pet.name}</span>
+                </div>
+                <div className="column">
+                  <img
+                    src="https://iconsetc.com/icons-watermarks/flat-circle-white-on-yellow/bfa/bfa_calendar/bfa_calendar_flat-circle-white-on-yellow_512x512.png"
+                    className="not-rounded"
+                    alt="calendar"
+                  />
+                  <span>
+                    {format(
+                      parseISO(rtAppointment.date),
+                      "dd/MM/yyyy à's' hh:mm",
+                      {
+                        locale: ptBR,
+                      }
+                    )}
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="no-rtapp">
+              <h3>nada recentemente</h3>
             </div>
-            <div className="column">
-              <img
-                src="https://www.selecoes.com.br/wp-content/uploads/2018/08/brinquedos-para-cachorro-760x450.jpg"
-                alt="pet"
-              />
-              <span>Teddy</span>
-            </div>
-            <div className="column">
-              <img
-                src="https://iconsetc.com/icons-watermarks/flat-circle-white-on-yellow/bfa/bfa_calendar/bfa_calendar_flat-circle-white-on-yellow_512x512.png"
-                className="not-rounded"
-                alt="calendar"
-              />
-              <span>22/11/2020 às 14:00h</span>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </ContentContainer>

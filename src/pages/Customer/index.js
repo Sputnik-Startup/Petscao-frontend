@@ -51,6 +51,24 @@ function Customer() {
     })();
   }, []);
 
+  async function handleSearch(e) {
+    const search = e.target.value;
+
+    try {
+      const response = await api({
+        method: 'get',
+        url: `/company/customer?q=${search}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      setCustomers(response.data);
+    } catch (error) {
+      showToast(error.response.data.error);
+    }
+  }
+
   function closeModal() {
     setSelectedCustomer({});
     setThumbnail(null);
@@ -81,6 +99,65 @@ function Customer() {
     }
   }
 
+  async function handleCreateCustomer(data) {
+    const form = new FormData();
+
+    Object.keys(data).map((key) => form.append(key, data[key]));
+    form.append('avatar', thumbnail);
+
+    try {
+      const response = await api({
+        method: 'post',
+        url: '/customer',
+        data: form,
+      });
+
+      setCustomers((state) => [response.data, ...state]);
+      closeModal();
+    } catch (error) {
+      showToast(error.response.data.error);
+    }
+  }
+
+  async function handleEditCustomer(data) {
+    try {
+      let response = await api({
+        method: 'put',
+        url: `/company/customer/${selectedCustomer.id}`,
+        data,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (thumbnail) {
+        const form = new FormData();
+        form.append('avatar', thumbnail);
+        response = await api({
+          method: 'patch',
+          url: `/avatar/${selectedCustomer.id}?context=customer`,
+          data: form,
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
+      }
+
+      setCustomers((state) =>
+        state.map((customer) => {
+          if (customer.id === selectedCustomer.id) {
+            return response.data;
+          }
+
+          return customer;
+        })
+      );
+      closeModal();
+    } catch (error) {
+      showToast(error.response.data.error);
+    }
+  }
+
   return (
     <Container>
       <ComponentHeader
@@ -92,9 +169,18 @@ function Customer() {
         <div className="list">
           <div className="title">
             <h3>Todos os Clientes</h3>
-            <button onClick={() => setCreateModal(true)}>
-              Adicionar Cliente
-            </button>
+            <div>
+              <input
+                type="text"
+                name="search"
+                id="search"
+                placeholder="Pesquisar..."
+                onChange={handleSearch}
+              />
+              <button onClick={() => setCreateModal(true)}>
+                Adicionar Cliente
+              </button>
+            </div>
           </div>
           <label>
             <span className="medium-20">nome</span>
@@ -149,12 +235,12 @@ function Customer() {
           <div className="modal-window w-900">
             <CreateUserForm
               schema={editSchema}
-              onSubmit={(data) => console.log(data)}
+              onSubmit={handleEditCustomer}
               context="customer"
               onCloseModal={closeModal}
               thumbnail={thumbnail}
               setThumbnail={setThumbnail}
-              customer={selectedCustomer}
+              value={selectedCustomer}
             />
           </div>
         </div>
@@ -164,8 +250,8 @@ function Customer() {
         <div className="edit-modal">
           <div className="modal-window w-900">
             <CreateUserForm
-              schema={editSchema}
-              onSubmit={(data) => console.log(data)}
+              schema={createSchema}
+              onSubmit={handleCreateCustomer}
               context="customer"
               onCloseModal={closeModal}
               thumbnail={thumbnail}

@@ -1,9 +1,16 @@
 import * as Yup from 'yup';
+import { isValidCPF } from '../../utils/isValidCPF';
 
 export const createSchema = Yup.object().shape({
   name: Yup.string().required('Nome obrigatório'),
   email: Yup.string().email('Email inválido').required('Email obrigatório'),
-  cpf: Yup.string().required('CPF obrigatório'),
+  cpf: Yup.string()
+    .required('CPF obrigatório')
+    .matches(
+      /^\d{3}\.\d{3}\.\d{3}\-\d{2}$/,
+      'A formatação está incorreta. Digite o CPF novamente.'
+    )
+    .test('validate-cpf', 'CPF inválido', isValidCPF),
   password: Yup.string()
     .min(8, 'A senha deve ter no mínimo 8 carateres')
     .required('Senha obrigatória'),
@@ -14,7 +21,12 @@ export const createSchema = Yup.object().shape({
     .integer('A idade deve ser um número inteiro')
     .required('Idade obrigatório')
     .typeError('Apenas números'),
-  phone: Yup.string().required('Telefone obrigatório'),
+  phone: Yup.string()
+    .required('Telefone obrigatório')
+    .matches(
+      /(\(\d{2}\)\s)(\d{5}-\d{4})/g,
+      'A formatação está incorreta. Digite o telefone novamente.'
+    ),
   address: Yup.string().required('Endereço obrigatório'),
   city: Yup.string().required('Cidade obrigatório'),
   state: Yup.string().required('Estado obrigatório'),
@@ -23,29 +35,46 @@ export const createSchema = Yup.object().shape({
   birth_date: Yup.date()
     .required('Data de nascimento obrigatório')
     .typeError('Data inválida'),
-  cep: Yup.string().required('CEP obrigatório'),
+  cep: Yup.string()
+    .required('CEP obrigatório')
+    .matches(
+      /^\d{5}-\d{3}/g,
+      'A formatação está incorreta. Digite o CEP novamente.'
+    ),
 });
 
 export const editSchema = Yup.object().shape({
   name: Yup.string().required('Nome obrigatório'),
-  email: Yup.string().email('Email inválido').required('Email obrigatório'),
-  cpf: Yup.string().required('CPF obrigatório'),
-  oldPassword: Yup.string(),
-  password: Yup.string().when('oldPassword', (oldPassword, field) =>
-    oldPassword ? field.required('Senha obrigatória') : field
+  cpf: Yup.string()
+    .required('CPF obrigatório')
+    .matches(
+      /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
+      'A formatação está incorreta. Digite o CPF novamente.'
+    )
+    .test('validate-cpf', 'CPF inválido', isValidCPF),
+
+  password: Yup.string().test(
+    'empty-check',
+    'Password must be at least 8 characters',
+    (password) => password.length >= 8 || password.length === 0
   ),
   confirmPassword: Yup.string().when('password', (password, field) =>
     password
       ? field
           .required('É necessário confirmar a nova senha')
-          .oneOf([Yup.ref('password')], 'As senhas não são iguai')
+          .oneOf([Yup.ref('password')], 'As senhas não são iguais')
       : field
   ),
   age: Yup.number()
     .integer('A idade deve ser um número inteiro')
     .required('Idade obrigatório')
     .typeError('Apenas números'),
-  phone: Yup.string().required('Telefone obrigatório'),
+  phone: Yup.string()
+    .required('Telefone obrigatório')
+    .matches(
+      /(\(\d{2}\)\s)(\d{5}-\d{4})/g,
+      'A formatação está incorreta. Digite o telefone novamente.'
+    ),
   address: Yup.string().required('Endereço obrigatório'),
   city: Yup.string().required('Cidade obrigatório'),
   state: Yup.string().required('Estado obrigatório'),
@@ -54,5 +83,10 @@ export const editSchema = Yup.object().shape({
   birth_date: Yup.date()
     .required('Data de nascimento obrigatório')
     .typeError('Data inválida'),
-  cep: Yup.string().required('CEP obrigatório'),
+  cep: Yup.string()
+    .required('CEP obrigatório')
+    .matches(
+      /^\d{5}-\d{3}/g,
+      'A formatação está incorreta. Digite o CEP novamente.'
+    ),
 });

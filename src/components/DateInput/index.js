@@ -17,7 +17,13 @@ function DateInput(props) {
   const { showToast } = useContext(ToastContext);
 
   useEffect(
-    () => props.setDate(`${date ? format(date, 'yyyy-MM-dd') : ''} ${hour}`),
+    () => {
+      if (props.onlyDate) {
+        props.setDate(`${date ? format(date, 'yyyy-MM-dd') : ''}`);
+      } else {
+        props.setDate(`${date ? format(date, 'yyyy-MM-dd') : ''} ${hour}`);
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [date, hour]
   );
@@ -25,6 +31,8 @@ function DateInput(props) {
   async function onSelectDate(date) {
     setDate(date);
     setShowCalendar(false);
+    setHour('');
+
     const dateFormated = format(date, 'yyyy-MM-dd', { locale: ptBR });
     try {
       const response = await api({
@@ -57,35 +65,37 @@ function DateInput(props) {
           ? format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
           : 'Clique para abrir o calendário'}
       </button>
-      <div className="hour-input">
-        <input
-          type="text"
-          placeholder={date ? 'Selecione uma hora' : 'Selecione uma data'}
-          defaultValue={hour}
-          readOnly
-          onFocus={() => setShowHours(true)}
-          onClick={() => setShowHours(true)}
-          onBlur={() => setShowHours(false)}
-        />
-        {showHours && date && (
-          <ul className="hour-dropdown">
-            {hours.map((hour) => {
-              if (hour.available) {
-                return (
-                  <li
-                    key={hour.value}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => selectHour(hour.time)}
-                  >
-                    {hour.time}
-                  </li>
-                );
-              }
-              return null;
-            })}
-          </ul>
-        )}
-      </div>
+      {!props.onlyDate && (
+        <div className="hour-input">
+          <input
+            type="text"
+            placeholder={date ? 'Selecione uma hora' : 'Selecione uma data'}
+            defaultValue={hour}
+            readOnly
+            onFocus={() => setShowHours(true)}
+            onClick={() => setShowHours(true)}
+            onBlur={() => setShowHours(false)}
+          />
+          {showHours && date && (
+            <ul className="hour-dropdown">
+              {hours.map((hour) => {
+                if (hour.available) {
+                  return (
+                    <li
+                      key={hour.value}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => selectHour(hour.time)}
+                    >
+                      {hour.time}
+                    </li>
+                  );
+                }
+                return null;
+              })}
+            </ul>
+          )}
+        </div>
+      )}
       {showCalendar && (
         <div className="calendar-modal">
           <div className="modal-window">

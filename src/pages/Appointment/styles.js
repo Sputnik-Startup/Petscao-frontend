@@ -158,6 +158,15 @@ export const Container = styled.div`
             filter: brightness(0.95);
           }
         }
+
+        input,
+        select {
+          height: 100%;
+          width: 300px;
+          margin-right: 20px;
+          border-radius: 8px;
+          padding: 0 20px;
+        }
       }
 
       h3 {

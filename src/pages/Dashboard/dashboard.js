@@ -1,16 +1,17 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import DashboardAside from '../../components/DashboardAside';
 import NavBar from '../../components/NavBar';
-import { UserContext } from '../../context/AuthContext';
 import { ToastContext } from '../../context/ToastContext';
 import api from '../../services/api';
 import DashboardRoute from './dashboardRoute';
+import socketioclient from 'socket.io-client';
 
 import { Container } from './styles';
 
 function Dashboard() {
   const contentRef = useRef(null);
   const [notifications, setNotifications] = useState([]);
+  const [rtAppointment, setRtAppointment] = useState({});
 
   const { showToast } = useContext(ToastContext);
 

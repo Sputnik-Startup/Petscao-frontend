@@ -8,10 +8,10 @@ import CustomerPicker from '../../components/CustomerPicker';
 import PetPicker from '../../components/PetPicker';
 import api from '../../services/api';
 import { UserContext } from '../../context/AuthContext';
-import { format } from 'date-fns/esm';
-import { isBefore, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { ToastContext } from '../../context/ToastContext';
-import { ptBR } from 'date-fns/esm/locale';
+import { ptBR } from 'date-fns/locale';
 
 function Appointment() {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -21,6 +21,7 @@ function Appointment() {
   const [selectedCustomer, setSelectedCustomer] = useState({});
   const [selectedPet, setSelectedPet] = useState({});
   const [selectedAppointment, setSelectedAppointment] = useState({});
+  const [searchUpdate, setSearchUpdate] = useState(null);
 
   const [appointments, setAppointments] = useState([]);
 
@@ -211,6 +212,7 @@ function Appointment() {
         <div className="list">
           <div className="title">
             <h3>Todos os Agendamentos</h3>
+            <DateInput onlyDate={true} />
             <button onClick={() => setCreateAppointmentModal(true)}>
               Criar Agendamento
             </button>

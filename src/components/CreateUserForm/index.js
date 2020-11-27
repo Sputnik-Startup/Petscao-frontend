@@ -48,7 +48,7 @@ function CreateUserForm({
   onCloseModal,
   setThumbnail,
   thumbnail,
-  customer,
+  value: customer,
 }) {
   const {
     register,
@@ -60,6 +60,7 @@ function CreateUserForm({
     clearErrors,
   } = useForm({
     resolver: yupResolver(schema),
+    mode: 'onBlur',
   });
 
   const hasCustomer = !!customer?.id;
@@ -101,11 +102,15 @@ function CreateUserForm({
           return;
         }
 
-        clearErrors('cep');
         setValue('state', stateName);
         setValue('city', response.data.localidade);
         setValue('neighborhood', response.data.bairro);
         setValue('address', response.data.logradouro);
+        clearErrors('cep');
+        clearErrors('state');
+        clearErrors('city');
+        clearErrors('neighborhood');
+        clearErrors('address');
       } catch (error) {}
     }
   };
@@ -128,7 +133,6 @@ function CreateUserForm({
 
   const handleKeypressPhone = (e) => {
     const phone = getValues('phone');
-    console.log(phone[phone.length - 1]);
 
     if (e.which >= 48 && e.which <= 57) {
       if (phone.length === 4 && phone[phone.length - 1] !== ' ') {
@@ -143,6 +147,34 @@ function CreateUserForm({
       }
     } else {
       e.preventDefault();
+    }
+  };
+
+  const handleStateChange = () => {
+    const state = getValues('state');
+
+    if (state.length === 2) {
+      const stateName = ufToName[state];
+
+      if (stateName) setValue('state', stateName);
+    }
+  };
+
+  const handlePhoneChange = () => {
+    const phone = getValues('phone');
+
+    if (phone.length === 11 && phone[0] !== '(') {
+      let newPhoneString;
+
+      newPhoneString =
+        '(' +
+        phone.substring(0, 2) +
+        ') ' +
+        phone.substring(2, 7) +
+        '-' +
+        phone.substring(7, 11);
+
+      setValue('phone', newPhoneString);
     }
   };
 
@@ -163,9 +195,10 @@ function CreateUserForm({
             <label
               id="thumbnail"
               style={{
-                backgroundImage: `url(${customer?.avatar?.url || preview})`,
+                backgroundImage: `url(${preview || customer?.avatar?.url})`,
                 backgroundPosition: 'center',
                 objectFit: 'cover',
+                width: hasCustomer ? '40%' : '',
               }}
               className={thumbnail ? 'has-thumbnail' : ''}
             >
@@ -198,7 +231,7 @@ function CreateUserForm({
                 <p className="error">{errors.username.message}</p>
               )}
             </>
-          ) : (
+          ) : !hasCustomer ? (
             <>
               <label htmlFor="email">Email</label>
               <input
@@ -209,7 +242,7 @@ function CreateUserForm({
               />
               {errors.email && <p className="error">{errors.email.message}</p>}
             </>
-          )}
+          ) : null}
 
           <label htmlFor="cpf">CPF</label>
           <input
@@ -234,20 +267,6 @@ function CreateUserForm({
           {errors.age && <p className="error">{errors.age.message}</p>}
         </div>
         <div className="column">
-          {hasCustomer && (
-            <>
-              <label htmlFor="password">Senha antiga</label>
-              <CustomInput
-                name="oldPassword"
-                register={register}
-                style={{ marginBottom: errors.oldPassword ? '5px' : '10px' }}
-              />
-              {errors.oldPassword && (
-                <p className="error">{errors.oldPassword.message}</p>
-              )}
-            </>
-          )}
-
           {context === 'employee' && (
             <>
               <label htmlFor="access">Nível de acesso</label>
@@ -294,8 +313,9 @@ function CreateUserForm({
           <label htmlFor="phone">Telefone</label>
           <input
             name="phone"
-            ref={register}
+            ref={register({ pattern: /(\(\d{2}\)\s)(\d{4,5}-\d{4})/g })}
             onKeyPress={handleKeypressPhone}
+            onChange={handlePhoneChange}
             maxLength={15}
             defaultValue={customer?.phone}
             style={{ marginBottom: errors.phone ? '5px' : '10px' }}
@@ -354,6 +374,7 @@ function CreateUserForm({
             name="state"
             ref={register}
             defaultValue={customer?.state}
+            onChange={handleStateChange}
             style={{ marginBottom: errors.state ? '5px' : '10px' }}
           />
           {errors.state && <p className="error">{errors.state.message}</p>}

@@ -165,6 +165,19 @@ export const ContentContainer = styled.div`
         color: #f1b71c;
       }
 
+      .no-rtapp {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+
+        h3 {
+          color: #b3b3b3;
+          font-size: 16px;
+        }
+      }
+
       .appointment {
         width: 100%;
         height: 100%;

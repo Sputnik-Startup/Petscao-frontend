@@ -8,15 +8,18 @@ import { ModalWrap } from './components/Modal';
 
 import './ReactotronConfig';
 import { UserProvider } from './context/AuthContext';
+import { RealTimeAppointmentProvider } from './context/RealTimeAppointment';
 
 function App() {
   return (
     <ToastProvider>
       <UserProvider>
-        <Global />
-        <ModalWrap>
-          <Routes />
-        </ModalWrap>
+        <RealTimeAppointmentProvider>
+          <Global />
+          <ModalWrap>
+            <Routes />
+          </ModalWrap>
+        </RealTimeAppointmentProvider>
       </UserProvider>
     </ToastProvider>
   );
