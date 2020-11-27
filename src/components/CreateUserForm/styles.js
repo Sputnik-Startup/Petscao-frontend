@@ -8,7 +8,6 @@ export const Container = styled.form`
   .row {
     width: 100%;
     display: flex;
-    margin: 0 !important;
 
     button {
       max-width: 20%;

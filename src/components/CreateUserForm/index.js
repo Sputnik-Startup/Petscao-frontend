@@ -44,7 +44,6 @@ function CreateUserForm({
   schema,
   context,
   onSubmit,
-  method,
   onCloseModal,
   setThumbnail,
   thumbnail,
@@ -204,6 +203,7 @@ function CreateUserForm({
             >
               <input
                 type="file"
+                accept="image/*"
                 onChange={(event) => setThumbnail(event.target.files[0])}
               />
               <img src={camera} alt="Select img" />
@@ -214,6 +214,7 @@ function CreateUserForm({
             name="name"
             ref={register}
             defaultValue={customer?.name}
+            placeholder="Roberto Carlos"
             style={{ marginBottom: errors.name ? '5px' : '10px' }}
           />
           {errors.name && <p className="error">{errors.name.message}</p>}
@@ -225,6 +226,7 @@ function CreateUserForm({
                 name="username"
                 ref={register}
                 defaultValue={customer?.username}
+                placeholder="roberto.carlos"
                 style={{ marginBottom: errors.username ? '5px' : '10px' }}
               />
               {errors.username && (
@@ -238,6 +240,7 @@ function CreateUserForm({
                 name="email"
                 ref={register}
                 defaultValue={customer?.email}
+                placeholder="rc.2020@domínio.com"
                 style={{ marginBottom: errors.email ? '5px' : '10px' }}
               />
               {errors.email && <p className="error">{errors.email.message}</p>}
@@ -251,6 +254,7 @@ function CreateUserForm({
             onKeyPress={handleKeypressCpf}
             maxLength={14}
             defaultValue={customer?.cpf}
+            placeholder="000.000.000-00"
             style={{ marginBottom: errors.cpf ? '5px' : '10px' }}
           />
           {errors.cpf && <p className="error">{errors.cpf.message}</p>}
@@ -262,6 +266,7 @@ function CreateUserForm({
             name="age"
             ref={register}
             defaultValue={customer?.age}
+            placeholder="34"
             style={{ marginBottom: errors.age ? '5px' : '10px' }}
           />
           {errors.age && <p className="error">{errors.age.message}</p>}
@@ -279,8 +284,8 @@ function CreateUserForm({
                 <option value="" disabled>
                   Selecione uma opção
                 </option>
-                <option value="male">administrador</option>
-                <option value="female">padrão</option>
+                <option value="adm">administrador</option>
+                <option value="default">padrão</option>
               </select>
               {errors.access && (
                 <p className="error">{errors.access.message}</p>
@@ -293,6 +298,7 @@ function CreateUserForm({
           </label>
           <CustomInput
             register={register}
+            placeholder="Escolha uma ótima senha"
             style={{ marginBottom: errors.password ? '5px' : '10px' }}
           />
           {errors.password && (
@@ -304,6 +310,7 @@ function CreateUserForm({
           <CustomInput
             name="confirmPassword"
             register={register}
+            placeholder="Confirme a senha"
             style={{ marginBottom: errors.confirmPassword ? '5px' : '10px' }}
           />
           {errors.confirmPassword && (
@@ -318,6 +325,7 @@ function CreateUserForm({
             onChange={handlePhoneChange}
             maxLength={15}
             defaultValue={customer?.phone}
+            placeholder="(00) 00000-0000"
             style={{ marginBottom: errors.phone ? '5px' : '10px' }}
           />
           {errors.phone && <p className="error">{errors.phone.message}</p>}
@@ -365,6 +373,7 @@ function CreateUserForm({
             onKeyPress={handleChangeCep}
             onKeyUp={handleKeyUpCep}
             defaultValue={customer?.cep}
+            placeholder="00000-000"
             style={{ marginBottom: errors.cep ? '5px' : '10px' }}
           />
           {errors.cep && <p className="error">{errors.cep.message}</p>}
@@ -375,6 +384,7 @@ function CreateUserForm({
             ref={register}
             defaultValue={customer?.state}
             onChange={handleStateChange}
+            placeholder="Minas Gerais"
             style={{ marginBottom: errors.state ? '5px' : '10px' }}
           />
           {errors.state && <p className="error">{errors.state.message}</p>}
@@ -384,6 +394,7 @@ function CreateUserForm({
             name="city"
             ref={register}
             defaultValue={customer?.city}
+            placeholder="Belo Horizonte"
             style={{ marginBottom: errors.city ? '5px' : '10px' }}
           />
           {errors.city && <p className="error">{errors.city.message}</p>}
@@ -393,6 +404,7 @@ function CreateUserForm({
             name="neighborhood"
             ref={register}
             defaultValue={customer?.neighborhood}
+            placeholder="Santa Mônica"
             style={{ marginBottom: errors.neighborhood ? '5px' : '10px' }}
           />
           {errors.neighborhood && (
@@ -404,15 +416,16 @@ function CreateUserForm({
             name="address"
             ref={register}
             defaultValue={customer?.address}
+            placeholder="Rua Nome Qualquer, 235"
             style={{ marginBottom: errors.address ? '5px' : '10px' }}
           />
           {errors.address && <p className="error">{errors.address.message}</p>}
         </div>
       </div>
 
-      <div className="row" style={{ padding: '0 20px' }}>
+      <div className="row" style={{ padding: '0 20px', margin: '0' }}>
         <button type="submit" className="yes">
-          Criar
+          {hasCustomer ? 'Editar' : 'Criar'}
         </button>
         <button className="blue" onClick={onCloseModal}>
           Voltar

@@ -35,6 +35,18 @@ export const ContentContainer = styled.div`
     gap: 20px;
     padding-top: 40px;
 
+    .logo {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 50%;
+      }
+    }
+
     .week-appointments {
       min-width: 600px;
       width: 40%;

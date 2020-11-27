@@ -38,4 +38,12 @@ export const Global = createGlobalStyle`
   ::-webkit-scrollbar-thumb:hover {
     background-color: #ccc;
   }
+  .nice-dates-day:before {
+    background-color: #f1b71c;
+    z-index: 1;
+  }
+
+  .nice-dates-day:after{
+    border-color: #f1b71c !important;
+  }
 `;

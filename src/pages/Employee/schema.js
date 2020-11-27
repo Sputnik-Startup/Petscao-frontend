@@ -3,7 +3,7 @@ import { isValidCPF } from '../../utils/isValidCPF';
 
 export const createSchema = Yup.object().shape({
   name: Yup.string().required('Nome obrigatório'),
-  email: Yup.string().email('Email inválido').required('Email obrigatório'),
+  username: Yup.string().required('Nome de usuário obrigatório'),
   cpf: Yup.string()
     .required('CPF obrigatório')
     .matches(
@@ -41,10 +41,12 @@ export const createSchema = Yup.object().shape({
       /^\d{5}-\d{3}/g,
       'A formatação está incorreta. Digite o CEP novamente.'
     ),
+  access: Yup.string().required('Nível de acesso obrigatório'),
 });
 
 export const editSchema = Yup.object().shape({
   name: Yup.string().required('Nome obrigatório'),
+  username: Yup.string().required('Nome de usuário obrigatório'),
   cpf: Yup.string()
     .required('CPF obrigatório')
     .matches(
@@ -89,4 +91,5 @@ export const editSchema = Yup.object().shape({
       /^\d{5}-\d{3}/g,
       'A formatação está incorreta. Digite o CEP novamente.'
     ),
+  access: Yup.string().required('Nível de acesso obrigatório'),
 });

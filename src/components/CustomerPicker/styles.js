@@ -51,6 +51,7 @@ export const Container = styled.div`
     background-color: #00000080;
     position: fixed;
     top: 0;
+    left: 0;
     z-index: 9999;
 
     .modal-customer {
@@ -64,7 +65,7 @@ export const Container = styled.div`
       max-height: 500px;
       position: relative;
 
-      > button {
+      button.close {
         width: 30px;
         height: 30px;
         padding: 5px;
@@ -134,12 +135,16 @@ export const Container = styled.div`
           min-height: 60px;
           padding-left: 20px;
           cursor: pointer;
-          transition: all 0.3s;
           margin-bottom: 10px;
           box-shadow: 0 0 20px 10px #00000010;
+          transition: all 0.3s;
+
+          &.selected {
+            border: 1px solid #f1b71c;
+          }
 
           &:hover {
-            filter: brightness(0.98);
+            filter: brightness(1);
           }
 
           span {

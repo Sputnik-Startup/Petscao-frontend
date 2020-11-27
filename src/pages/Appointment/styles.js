@@ -146,7 +146,23 @@ export const Container = styled.div`
         margin-bottom: 20px;
         display: flex;
         justify-content: space-between;
-        button {
+
+        > div {
+          display: flex;
+          > button {
+            padding: 15px 20px;
+            background-color: #78cf9d;
+            color: #fff;
+            border-radius: 8px;
+            transition: all 0.3s;
+            margin-right: 10px;
+
+            &:hover {
+              filter: brightness(0.95);
+            }
+          }
+        }
+        > button {
           padding: 15px 20px;
           background-color: #78cf9d;
           color: #fff;
@@ -184,6 +200,7 @@ export const Container = styled.div`
         span {
           color: #b5b5b5;
           font-size: 14px;
+          font-weight: 700;
 
           &.big {
             width: 45% !important;

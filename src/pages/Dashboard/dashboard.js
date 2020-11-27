@@ -11,7 +11,6 @@ import { Container } from './styles';
 function Dashboard() {
   const contentRef = useRef(null);
   const [notifications, setNotifications] = useState([]);
-  const [rtAppointment, setRtAppointment] = useState({});
 
   const { showToast } = useContext(ToastContext);
 

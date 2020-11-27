@@ -16,4 +16,14 @@ export const Container = styled.div`
     font-size: 14px;
     padding: 0 10px;
   }
+
+  button {
+    margin-top: 10px;
+    height: 30px;
+    background-color: #f1b71c;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 8px;
+    padding: 0 10px;
+  }
 `;

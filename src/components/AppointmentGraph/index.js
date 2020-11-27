@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import api from '../../services/api';
 
 import { Container } from './styles';
 
@@ -8,21 +9,40 @@ const months = {
 };
 
 function AppointmentGraph() {
+  const [data, setData] = useState({ total: 0, values: [] });
+
+  useEffect(() => {
+    const tk = localStorage.getItem('PC_TOKEN');
+    (async () => {
+      try {
+        const response = await api({
+          method: 'get',
+          url: '/company/appointment/month',
+          headers: {
+            authorization: `Bearer ${tk}`,
+          },
+        });
+
+        setData(response.data);
+      } catch (error) {}
+    })();
+  }, []);
+
   return (
     <Container>
       <div className="header">
         <h3>Agendamentos neste ano</h3>
-        <span>Gráfico mostrando os agendamentos relizados este ano</span>
+        <span>Gráfico mostrando o desempenho em cada mês</span>
       </div>
       <div className="graph">
         <ul className="graph-data">
-          <h6>total: {months.total}</h6>
-          {months.values.map((value, index) => (
+          <h6>total: {data.total}</h6>
+          {Object.values(data.values).map((value, index) => (
             <li className="data" key={index}>
               <span>{value}</span>
               <div
                 style={{
-                  height: `${Math.round((value * 100) / months.total)}%`,
+                  height: `${Math.round((value * 100) / data.total)}%`,
                 }}
               ></div>
             </li>

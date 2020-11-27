@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
 import {
   FiHome,
@@ -15,9 +15,14 @@ import { Container } from './styles';
 import logo from '../../assets/logo.svg';
 import { useHistory } from 'react-router-dom';
 
+import Pawn from '../../assets/Pawn.svg';
+import { UserContext } from '../../context/AuthContext';
+
 function DashboardAside() {
   const [show, setShow] = useState(false);
   const history = useHistory();
+
+  const { user } = useContext(UserContext);
 
   return (
     <Container
@@ -82,21 +87,22 @@ function DashboardAside() {
           history.location.pathname === '/dashboard/pets' ? 'selected' : null
         }
       >
-        <FiUsers size={22} color="#fc5400" />
+        <img src={Pawn} alt="pawn" />
         <span>Pets</span>
       </li>
-
-      <li
-        onClick={() => history.push('/dashboard/employees')}
-        className={
-          history.location.pathname === '/dashboard/employees'
-            ? 'selected'
-            : null
-        }
-      >
-        <FiUser size={22} color="#b06e35" />
-        <span>Funcionários</span>
-      </li>
+      {user?.access === 'adm' && (
+        <li
+          onClick={() => history.push('/dashboard/employees')}
+          className={
+            history.location.pathname === '/dashboard/employees'
+              ? 'selected'
+              : null
+          }
+        >
+          <FiUser size={22} color="#b06e35" />
+          <span>Funcionários</span>
+        </li>
+      )}
 
       <li
         onClick={() => history.push('/dashboard/posts')}

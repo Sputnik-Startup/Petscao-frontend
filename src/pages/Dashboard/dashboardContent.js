@@ -11,6 +11,7 @@ import api from '../../services/api';
 
 import { ContentContainer } from './styles';
 import { RealTimeAppointmentContext } from '../../context/RealTimeAppointment';
+import logo from '../../assets/logo.svg';
 
 function DashboardContent() {
   const [dayAppointment, setDayAppointment] = useState([]);
@@ -43,7 +44,7 @@ function DashboardContent() {
     });
 
     setDayAppointment((_) =>
-      appointments.data.map((app) => ({
+      appointments.data.appointments.map((app) => ({
         ...app,
         formatted_date: format(parseISO(app.date), "hh:mm'h'", {
           locale: ptBR,
@@ -119,7 +120,7 @@ function DashboardContent() {
                   </span>
                   <span>
                     <strong>Pet:</strong>
-                    {appointment.pet.name}
+                    {appointment.pet?.name || 'PET DELETADO'}
                   </span>
                   <span>
                     <strong>Hora:</strong>
@@ -170,6 +171,9 @@ function DashboardContent() {
               <h3>nada recentemente</h3>
             </div>
           )}
+        </div>
+        <div className="logo">
+          <img src={logo} alt="logo" />
         </div>
       </div>
     </ContentContainer>

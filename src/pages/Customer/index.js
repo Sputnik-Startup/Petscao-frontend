@@ -172,8 +172,8 @@ function Customer() {
             <div>
               <input
                 type="text"
-                name="search"
-                id="search"
+                name="search-customer"
+                id="search-customer"
                 placeholder="Pesquisar..."
                 onChange={handleSearch}
               />

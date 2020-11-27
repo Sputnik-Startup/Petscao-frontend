@@ -28,6 +28,10 @@ function CustomerPicker(props) {
   }, []);
 
   function onSelect(customer) {
+    if (customer.id === props.selectedCustomer?.id) {
+      props.setSelectedCustomer(null);
+      return;
+    }
     setModal(false);
     props.setSelectedCustomer(customer);
   }
@@ -45,19 +49,29 @@ function CustomerPicker(props) {
   }
 
   return (
-    <Container>
-      <button onClick={() => setModal(true)}>Selecionar cliente</button>
-      <div className="selected">
-        {props.selectedCustomer.avatar && (
+    <Container style={props.style}>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          setModal(true);
+        }}
+        style={props.buttonStyle}
+      >
+        Selecionar cliente
+      </button>
+      <div className="selected" style={props.buttonStyle}>
+        {props.selectedCustomer?.avatar && (
           <img src={props.selectedCustomer.avatar.url} alt="profile" />
         )}
-        <span>{props.selectedCustomer.name || 'Selecione um cliente'}</span>
+        <span>
+          {props.selectedCustomer?.name || 'Nenhum cliente selecionado'}
+        </span>
       </div>
 
       {modal && (
         <div className="customer-select">
           <div className="modal-customer">
-            <button onClick={() => setModal(false)}>
+            <button className="close" onClick={() => setModal(false)}>
               <FiX color="#fff" size={16} />
             </button>
             <header>
@@ -76,7 +90,13 @@ function CustomerPicker(props) {
             </div>
             <ul>
               {customers.map((cust) => (
-                <li onClick={() => onSelect(cust)} key={cust.id}>
+                <li
+                  onClick={() => onSelect(cust)}
+                  key={cust.id}
+                  className={
+                    props.selectedCustomer?.id === cust.id ? 'selected' : ''
+                  }
+                >
                   <span className="small">
                     <img src={cust.avatar.url} alt="profile" />
                   </span>

@@ -30,20 +30,23 @@ function DateInput(props) {
 
   async function onSelectDate(date) {
     setDate(date);
+
     setShowCalendar(false);
-    setHour('');
+    if (!props.onlyDate) {
+      setHour('');
 
-    const dateFormated = format(date, 'yyyy-MM-dd', { locale: ptBR });
-    try {
-      const response = await api({
-        method: 'get',
-        url: `/appointment/available?date=${dateFormated}`,
-      });
+      const dateFormated = format(date, 'yyyy-MM-dd', { locale: ptBR });
+      try {
+        const response = await api({
+          method: 'get',
+          url: `/appointment/available?date=${dateFormated}`,
+        });
 
-      setHours(response.data);
-    } catch (error) {
-      showToast(error.response.data.error);
-      setDate(null);
+        setHours(response.data);
+      } catch (error) {
+        showToast(error.response.data.error);
+        setDate(null);
+      }
     }
   }
 
@@ -53,13 +56,14 @@ function DateInput(props) {
   }
 
   return (
-    <Container>
+    <Container style={props.style}>
       <button
         className="open-calendar"
         onClick={(e) => {
           e.preventDefault();
           setShowCalendar(true);
         }}
+        style={props.buttonStyle}
       >
         {date
           ? format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
@@ -99,7 +103,19 @@ function DateInput(props) {
       {showCalendar && (
         <div className="calendar-modal">
           <div className="modal-window">
-            <DatePicker date={date} onSelectDate={onSelectDate} />
+            <DatePicker
+              date={date}
+              onSelectDate={onSelectDate}
+              dataCleanup={
+                props.dataClean
+                  ? () => {
+                      props.setDate(null);
+                      setDate(null);
+                      setShowCalendar(false);
+                    }
+                  : null
+              }
+            />
           </div>
         </div>
       )}

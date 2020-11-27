@@ -14,7 +14,12 @@ const CustomInput = (props) => {
 
   return (
     <div className="input-password" style={props.style}>
-      <input type={type} name={props.name || 'password'} ref={props.register} />
+      <input
+        type={type}
+        name={props.name || 'password'}
+        ref={props.register}
+        placeholder={props.placeholder}
+      />
       {props.type !== 'text' &&
         (type === 'text' ? (
           <FiEyeOff

@@ -21,33 +21,46 @@ function Appointment() {
   const [selectedCustomer, setSelectedCustomer] = useState({});
   const [selectedPet, setSelectedPet] = useState({});
   const [selectedAppointment, setSelectedAppointment] = useState({});
-  const [searchUpdate, setSearchUpdate] = useState(null);
+  const [searchDate, setSearchDate] = useState(null);
+
+  const [canceled, setCanceled] = useState(0);
+  const [total, setTotal] = useState(0);
 
   const [appointments, setAppointments] = useState([]);
 
   const { token } = useContext(UserContext);
   const { showToast, hideToast } = useContext(ToastContext);
 
-  useEffect(() => {
-    (async () => {
-      const response = await api.get('/company/appointment', {
-        headers: { authorization: `Bearer ${token}` },
-      });
+  async function loadAppointments() {
+    const tk = localStorage.getItem('PC_TOKEN');
+    const response = await api.get(
+      searchDate
+        ? `/company/appointment?date=${searchDate}`
+        : '/company/appointment',
+      {
+        headers: { authorization: `Bearer ${tk}` },
+      }
+    );
 
-      setAppointments((_) =>
-        response.data.map((app) => ({
-          ...app,
-          formatted_date: format(
-            parseISO(app.date),
-            "dd/MM/yyyy à's' HH:mm'h'",
-            {
-              locale: ptBR,
-            }
-          ),
-        }))
-      );
-    })();
-  }, [token]);
+    setAppointments((_) =>
+      response.data.appointments.map((app) => ({
+        ...app,
+        formatted_date: format(parseISO(app.date), "dd/MM/yyyy à's' HH:mm'h'", {
+          locale: ptBR,
+        }),
+      }))
+    );
+    setCanceled(response.data.canceled);
+    setTotal(response.data.total);
+  }
+
+  useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  useEffect(() => {
+    loadAppointments();
+  }, [searchDate]);
 
   function openDeleteModal(appointment) {
     setSelectedAppointment(appointment);
@@ -212,10 +225,24 @@ function Appointment() {
         <div className="list">
           <div className="title">
             <h3>Todos os Agendamentos</h3>
-            <DateInput onlyDate={true} />
-            <button onClick={() => setCreateAppointmentModal(true)}>
-              Criar Agendamento
-            </button>
+            <div>
+              <DateInput
+                onlyDate={true}
+                setDate={setSearchDate}
+                dataClean={true}
+                style={{ marginBottom: 0, marginRight: '10px' }}
+                buttonStyle={{
+                  height: '100%',
+                  backgroundColor: '#fff',
+                  color: '#333',
+                  boxShadow: 'none',
+                  padding: '15px 20px',
+                }}
+              />
+              <button onClick={() => setCreateAppointmentModal(true)}>
+                Criar Agendamento
+              </button>
+            </div>
           </div>
           <label>
             <span className="medium">cliente</span>
@@ -226,8 +253,12 @@ function Appointment() {
           <ul>
             {appointments.map((appointment) => (
               <li key={appointment.id}>
-                <span className="medium">{appointment.customer.name}</span>
-                <span className="medium">{appointment.pet.name}</span>
+                <span className="medium">
+                  {appointment.customer?.name || 'CLIENTE DELETADO'}
+                </span>
+                <span className="medium">
+                  {appointment.pet?.name || 'PET DELETADO'}
+                </span>
                 <span className="big">{appointment.formatted_date}</span>
                 <span className="small">
                   <FiEdit
@@ -250,13 +281,13 @@ function Appointment() {
         <div className="cards">
           <div className="card" style={{ backgroundColor: '#f76457' }}>
             <div className="circle" style={{ border: '5px solid #ff8075' }}>
-              233
+              {canceled}
             </div>
             <span>Agendamentos Cancelados</span>
           </div>
           <div className="card" style={{ backgroundColor: '#498bfc' }}>
             <div className="circle" style={{ border: '5px solid #7dabfa' }}>
-              3526
+              {total}
             </div>
             <span>Total de agendamentos</span>
           </div>

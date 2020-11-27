@@ -17,6 +17,9 @@ function DatePicker(props) {
         onDateChange={props.onSelectDate}
         locale={ptBR}
       />
+      {props.dataCleanup && (
+        <button onClick={props.dataCleanup}>Limpar data</button>
+      )}
     </Container>
   );
 }

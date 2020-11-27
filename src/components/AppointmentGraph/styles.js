@@ -10,7 +10,7 @@ export const Container = styled.div`
   padding-top: 20px;
   box-shadow: 0 0 20px 10px #0000001a;
   min-height: 300px;
-  height: 300px;
+  height: 350px;
 
   .header {
     > span {

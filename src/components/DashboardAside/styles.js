@@ -49,6 +49,10 @@ export const Container = styled.div`
     align-items: center;
     margin-bottom: 5px;
 
+    img {
+      width: 22px;
+    }
+
     cursor: pointer;
     transition: all 0.3s;
     position: relative;
