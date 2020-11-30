@@ -35,10 +35,34 @@ export const Container = styled.div`
       }
 
       .row {
+        display: flex;
+        position: relative;
         input {
           height: 50px;
           padding: 0 10px;
           width: 100%;
+        }
+        .mark-profile {
+          width: 60%;
+          position: absolute;
+          max-height: 170px;
+          bottom: 60px;
+          left: 0;
+          border: 1px solid #ddd;
+          box-shadow: 0 0 10px 3px #00000010;
+          border-radius: 4px;
+          margin-left: 10px;
+
+          ul {
+            max-height: 140px;
+            li {
+              transition: all 0.3s;
+              cursor: pointer;
+              &:hover {
+                filter: brightness(0.92);
+              }
+            }
+          }
         }
 
         button {
@@ -132,15 +156,19 @@ export const Container = styled.div`
         border-radius: 0 0 4px 4px;
         max-height: 250px;
         overflow: auto;
+
         li.no-comments {
           width: 100%;
           height: 50px;
           display: flex;
           align-items: center;
           justify-content: center;
+          background-color: #fff;
 
           span {
             font-size: 12px;
+            font-weight: 700;
+            color: #b3b3b3;
           }
         }
 
@@ -233,6 +261,7 @@ export const Container = styled.div`
         cursor: pointer;
 
         height: 500px;
+
         header {
           display: flex;
           align-items: center;
