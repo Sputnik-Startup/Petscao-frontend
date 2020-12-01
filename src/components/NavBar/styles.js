@@ -95,6 +95,8 @@ export const Container = styled.div`
 
         ul {
           border-radius: 0 0 8px 8px;
+          max-height: 300px;
+          overflow: auto;
 
           li {
             list-style: none;

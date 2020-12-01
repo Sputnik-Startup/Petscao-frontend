@@ -7,6 +7,7 @@ import Pet from '../Pet';
 import Employee from '../Employee';
 import Post from '../Post';
 import DashboardContent from './dashboardContent';
+import Tools from '../Tools';
 
 function DashboardRoute() {
   return (
@@ -18,6 +19,7 @@ function DashboardRoute() {
       <Route path="/dashboard/employees" component={Employee} />
       <Route path="/dashboard/posts" component={Post} />
       <Route path="/dashboard/pets" component={Pet} />
+      <Route path="/dashboard/tools" component={Tools} />
     </>
   );
 }

@@ -1,7 +1,14 @@
 import { formatRelative, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/esm/locale';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { FiHeart, FiMail, FiMessageCircle, FiX } from 'react-icons/fi';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  FiAlertCircle,
+  FiHeart,
+  FiMail,
+  FiMessageCircle,
+  FiTrash,
+  FiX,
+} from 'react-icons/fi';
 import ComponentHeader from '../../components/ComponentHeader';
 import { UserContext } from '../../context/AuthContext';
 import { ToastContext } from '../../context/ToastContext';
@@ -9,9 +16,11 @@ import { ToastContext } from '../../context/ToastContext';
 import api from '../../services/api';
 
 import { Container } from './styles';
+import camera from '../../assets/camera.svg';
 
 function Post() {
   const [postModal, setPostModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   const [commentModal, setCommentModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -21,10 +30,18 @@ function Post() {
   const [peoplesAtComments, setPeoplesAtComments] = useState([]);
   const [peopleModal, setPeopleModal] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState(null);
+  const [createModal, setCreateModal] = useState(false);
+  const [thumbnail, setThumbnail] = useState(null);
 
   const { showToast } = useContext(ToastContext);
   const { token, user } = useContext(UserContext);
   const peopleInputRef = useRef(null);
+  const titleInputRef = useRef(null);
+
+  const preview = useMemo(
+    () => (thumbnail ? URL.createObjectURL(thumbnail) : null),
+    [thumbnail]
+  );
 
   useEffect(() => {
     (async () => {
@@ -46,10 +63,28 @@ function Post() {
     })();
   }, []);
 
-  function onOpenEditModal(post) {
+  function onOpenFocusModal(post) {
     setSelectedPost(post);
 
     setPostModal(true);
+  }
+
+  function onOpenDeleteModal(post) {
+    setSelectedPost(post);
+
+    setDeleteModal(true);
+  }
+
+  function closeModal() {
+    setSelectedPost(null);
+    setSelectedComment(null);
+    setSelectedPeople(null);
+    setCommentContent('');
+    setThumbnail(null);
+
+    if (postModal) setPostModal(false);
+    if (deleteModal) setDeleteModal(false);
+    if (createModal) setCreateModal(false);
   }
 
   function handleDigit(e) {
@@ -113,6 +148,31 @@ function Post() {
     }
   }
 
+  async function handleDeletePost() {
+    if (selectedPost) {
+      try {
+        await api({
+          method: 'delete',
+          url: `/company/post/${selectedPost.id}`,
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
+
+        setPosts((state) =>
+          state.filter((post) => post.id !== selectedPost.id)
+        );
+        closeModal();
+        showToast(
+          'Publicação deletada com sucesso!',
+          <FiAlertCircle color="#78cf9d" size={35} />
+        );
+      } catch (error) {
+        showToast(error.response.data.error);
+      }
+    }
+  }
+
   function handleSelectPeople(people) {
     setCommentContent(`@${people.name} `);
     peopleInputRef.current.focus();
@@ -133,7 +193,6 @@ function Post() {
 
   async function handleComment() {
     if (!/^@[A-z]*((\s[A-z]*)*)?/.test(commentContent)) {
-      console.log('nao passou');
       setSelectedPeople(null);
     }
 
@@ -146,7 +205,7 @@ function Post() {
       const response = await api({
         method: 'post',
         url: !selectedPeople
-          ? `/posts/comment?p=${selectedPost.id}`
+          ? `/posts/comment?p=${selectedPost.id}&context=employee`
           : `/posts/comment?p=${selectedPost.id}&notifyTo=${selectedPeople}&context=employee`,
         data: { content: commentContent },
         headers: {
@@ -158,8 +217,71 @@ function Post() {
       _selectedPost.comments = [..._selectedPost.comments, response.data];
 
       setSelectedPost(_selectedPost);
+      setPosts((state) =>
+        state.map((post) => (post.id === selectedPost.id ? selectedPost : post))
+      );
       setCommentContent('');
       setSelectedPeople(null);
+    } catch (error) {
+      showToast(error.response.data.error);
+    }
+  }
+
+  async function handleCreatePost() {
+    const title = titleInputRef.current?.value;
+
+    if (!title) {
+      showToast('Digite um texto para criar a publicação');
+      return;
+    }
+
+    if (!thumbnail) {
+      showToast('Selecione uma imagem');
+      return;
+    }
+
+    try {
+      const data = new FormData();
+      data.append('midia', thumbnail);
+      data.append('title', title);
+      const response = await api({
+        method: 'post',
+        url: '/company/post',
+        data: data,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      setPosts((state) => [response.data, ...state]);
+      closeModal();
+      showToast(
+        'Publicação criada com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
+    } catch (error) {
+      showToast(error.response.data.error);
+    }
+  }
+
+  async function handleDeleteComment(comment) {
+    try {
+      await api({
+        method: 'delete',
+        url: `/posts/comment/${comment.id}?context=employee`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      const _selectedPost = selectedPost;
+      _selectedPost.comments = selectedPost.comments.filter(
+        (cmt) => cmt.id !== comment.id
+      );
+      setSelectedPost(_selectedPost);
+      setPosts((state) =>
+        state.map((post) => (post.id === selectedPost.id ? selectedPost : post))
+      );
     } catch (error) {
       showToast(error.response.data.error);
     }
@@ -173,11 +295,16 @@ function Post() {
         style={{ padding: '0 40px' }}
       />
       <div className="content">
-        <button>Publicar novo</button>
+        <button onClick={() => setCreateModal(true)}>Publicar novo</button>
         <ul className="posts">
           {posts.map((post) => (
-            <li onClick={() => onOpenEditModal(post)} key={post.id}>
+            <li key={post.id}>
               <header>
+                <FiTrash
+                  size={18}
+                  color="#f25c5c"
+                  onClick={() => onOpenDeleteModal(post)}
+                />
                 <img
                   src={post.employee.avatar.url}
                   alt="profile"
@@ -201,20 +328,75 @@ function Post() {
                   <FiMessageCircle size={16} color="#4287f5" />
                   <span>{post.comments.length}</span>
                 </div>
-                <span>
+                <span title={post.title}>
                   <strong>{post.employee.name}: </strong>
                   {post.title}
                 </span>
+                <p onClick={() => onOpenFocusModal(post)}>
+                  Ver mais sobre esta publicação
+                </p>
               </footer>
             </li>
           ))}
         </ul>
       </div>
+      {createModal && (
+        <div className="create-modal">
+          <div className="modal w-500">
+            <label htmlFor="title">Texto da publicação</label>
+            <input type="text" name="title" id="title" ref={titleInputRef} />
+
+            <label htmlFor="">Selecione a imagem</label>
+            <label
+              id="thumbnail"
+              style={{
+                backgroundImage: `url(${preview})`,
+                backgroundPosition: 'center',
+                objectFit: 'cover',
+                width: '100%',
+                height: '100%',
+              }}
+              className={thumbnail ? 'has-thumbnail' : ''}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(event) => setThumbnail(event.target.files[0])}
+              />
+              <img src={camera} alt="Select img" />
+              <h3>Selecione a mídia da publicação</h3>
+            </label>
+            <div className="row">
+              <button className="yes" onClick={handleCreatePost}>
+                Publicar
+              </button>
+              <button className="blue" onClick={closeModal}>
+                Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {deleteModal && (
+        <div className="delete-modal">
+          <div className="modal-window">
+            <h3>Tem certeza?</h3>
+            <div className="options" style={{ display: 'flex' }}>
+              <button className="yes" onClick={handleDeletePost}>
+                Sim
+              </button>
+              <button className="no" onClick={closeModal}>
+                Não
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {postModal && (
         <div className="post-modal">
           <div className="modal">
-            <button onClick={() => setPostModal(false)}>
+            <button onClick={closeModal}>
               <FiX size={16} color="#fff" />
             </button>
             <header>
@@ -253,6 +435,14 @@ function Post() {
             <ul className="comments">
               {selectedPost.comments.map((comment) => (
                 <li className="comment" key={comment.id}>
+                  {comment.employee?.id === user.id && (
+                    <FiTrash
+                      size={18}
+                      color="#f25c5c"
+                      onClick={() => handleDeleteComment(comment)}
+                    />
+                  )}
+
                   <img
                     src={
                       comment.employee?.avatar.url ||

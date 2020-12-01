@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../context/AuthContext';
+import useAxios from '../../hooks/useAxios';
 import api from '../../services/api';
 
 import { Container } from './styles';
@@ -10,21 +11,10 @@ function PetPicker(props) {
   const [pets, setPets] = useState([]);
 
   const { token } = useContext(UserContext);
+  const { data, error } = useAxios(`/company/pet?owner=${props.owner}`);
 
   useEffect(() => {
-    (async () => {
-      if (props.owner) {
-        const response = await api({
-          method: 'get',
-          url: `/company/pet?c=${props.owner}`,
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
-
-        setPets(response.data);
-      }
-    })();
+    props.setSelectedPet(null);
   }, [props.owner]);
 
   function onSelect(Pet) {
@@ -41,7 +31,7 @@ function PetPicker(props) {
         Selecionar pet
       </button>
       <div className="selected">
-        {props.selectedPet.name && (
+        {props.selectedPet?.name && (
           <img
             src={
               props.selectedPet?.avatar?.url ||
@@ -51,7 +41,7 @@ function PetPicker(props) {
           />
         )}
         <span>
-          {props.selectedPet.name
+          {props.selectedPet?.name
             ? props.selectedPet.name
             : !props.hasCustomer
             ? 'Primeiro selecione um cliente'
@@ -71,7 +61,7 @@ function PetPicker(props) {
               <span classname="medium">raça</span>
             </div>
             <ul>
-              {pets.map((pet) => (
+              {data?.map((pet) => (
                 <li onClick={() => onSelect(pet)} key={pet.id}>
                   <span className="small">
                     <img

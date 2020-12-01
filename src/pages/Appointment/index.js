@@ -8,10 +8,10 @@ import CustomerPicker from '../../components/CustomerPicker';
 import PetPicker from '../../components/PetPicker';
 import api from '../../services/api';
 import { UserContext } from '../../context/AuthContext';
-import { format } from 'date-fns';
-import { parseISO } from 'date-fns';
+import { format, parseISO, startOfHour } from 'date-fns';
 import { ToastContext } from '../../context/ToastContext';
 import { ptBR } from 'date-fns/locale';
+import useAxios from '../../hooks/useAxios';
 
 function Appointment() {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -30,36 +30,18 @@ function Appointment() {
 
   const { token } = useContext(UserContext);
   const { showToast, hideToast } = useContext(ToastContext);
+  const { data, error, mutate, revalidate } = useAxios(
+    searchDate
+      ? `/company/appointment?date=${searchDate}`
+      : '/company/appointment'
+  );
 
-  async function loadAppointments() {
-    const tk = localStorage.getItem('PC_TOKEN');
-    const response = await api.get(
-      searchDate
-        ? `/company/appointment?date=${searchDate}`
-        : '/company/appointment',
-      {
-        headers: { authorization: `Bearer ${tk}` },
-      }
-    );
-
-    setAppointments((_) =>
-      response.data.appointments.map((app) => ({
-        ...app,
-        formatted_date: format(parseISO(app.date), "dd/MM/yyyy à's' HH:mm'h'", {
-          locale: ptBR,
-        }),
-      }))
-    );
-    setCanceled(response.data.canceled);
-    setTotal(response.data.total);
+  if (error) {
+    showToast(error.response.data.error);
   }
 
   useEffect(() => {
-    loadAppointments();
-  }, []);
-
-  useEffect(() => {
-    loadAppointments();
+    revalidate();
   }, [searchDate]);
 
   function openDeleteModal(appointment) {
@@ -93,7 +75,7 @@ function Appointment() {
       )
     ) {
       try {
-        const response = await api({
+        api({
           method: 'put',
           url: `/company/appointment/${selectedAppointment.id}`,
           data: {
@@ -104,30 +86,19 @@ function Appointment() {
           },
         });
         hideToast();
-        if (response.data.error) {
-          showToast('Erro ao atualizar agendamento');
-        } else {
-          setAppointments((state) =>
-            state.map((appointment) => {
-              if (appointment.id === response.data.id) {
-                return {
-                  ...response.data,
-                  formatted_date: format(
-                    parseISO(response.data.date),
-                    "dd/MM/yyyy à's' HH:mm'h'",
-                    {
-                      locale: ptBR,
-                    }
-                  ),
-                };
-              }
+        const appointmentUpdated = data.appointments.map((app) => {
+          if (app.id === selectedAppointment.id) {
+            const date = updateDate;
+            return {
+              ...selectedAppointment,
+              date,
+            };
+          }
 
-              return { ...appointment };
-            })
-          );
-
-          closeModal();
-        }
+          return app;
+        });
+        mutate({ ...data, appointments: appointmentUpdated }, false);
+        closeModal();
       } catch (error) {
         showToast(error.response.data.error);
       }
@@ -167,19 +138,11 @@ function Appointment() {
           },
         });
 
-        setAppointments((state) => [
-          {
-            ...response.data,
-            formatted_date: format(
-              parseISO(response.data.date),
-              "dd/MM/yyyy à's' HH:mm'h'",
-              {
-                locale: ptBR,
-              }
-            ),
-          },
-          ...state,
-        ]);
+        const appointmentsUpdated = [response.data, ...data.appointments];
+        mutate(
+          { ...data, appointments: appointmentsUpdated, total: data.total + 1 },
+          false
+        );
         closeModal();
       } catch (error) {
         showToast(error.response.data.error || 'teste');
@@ -191,7 +154,7 @@ function Appointment() {
 
   async function deleteAppointment() {
     try {
-      await api({
+      api({
         method: 'delete',
         url: `/company/appointment/${selectedAppointment.id}`,
         headers: {
@@ -199,10 +162,18 @@ function Appointment() {
         },
       });
 
-      setAppointments((state) =>
-        state.filter((app) => app.id !== selectedAppointment.id)
+      const appointmentsupdated = data.appointments.filter(
+        (app) => app.id !== selectedAppointment.id
       );
 
+      mutate(
+        {
+          ...data,
+          appointments: appointmentsupdated,
+          canceled: data.canceled + 1,
+        },
+        false
+      );
       showToast(
         'Agendamento deletado com sucesso!',
         <FiAlertCircle color="#78cf9d" size={35} />
@@ -251,15 +222,23 @@ function Appointment() {
             <span className="small"></span>
           </label>
           <ul>
-            {appointments.map((appointment) => (
-              <li key={appointment.id}>
+            {data?.appointments.map((appointment, index) => (
+              <li key={index}>
                 <span className="medium">
                   {appointment.customer?.name || 'CLIENTE DELETADO'}
                 </span>
                 <span className="medium">
                   {appointment.pet?.name || 'PET DELETADO'}
                 </span>
-                <span className="big">{appointment.formatted_date}</span>
+                <span className="big">
+                  {format(
+                    parseISO(appointment.date),
+                    "dd/MM/yyyy à's' HH:mm'h'",
+                    {
+                      locale: ptBR,
+                    }
+                  )}
+                </span>
                 <span className="small">
                   <FiEdit
                     size={22}
@@ -281,13 +260,13 @@ function Appointment() {
         <div className="cards">
           <div className="card" style={{ backgroundColor: '#f76457' }}>
             <div className="circle" style={{ border: '5px solid #ff8075' }}>
-              {canceled}
+              {data?.canceled}
             </div>
             <span>Agendamentos Cancelados</span>
           </div>
           <div className="card" style={{ backgroundColor: '#498bfc' }}>
             <div className="circle" style={{ border: '5px solid #7dabfa' }}>
-              {total}
+              {data?.total}
             </div>
             <span>Total de agendamentos</span>
           </div>
@@ -336,7 +315,7 @@ function Appointment() {
               setSelectedCustomer={setSelectedCustomer}
             />
             <PetPicker
-              hasCustomer={!!selectedCustomer.name}
+              hasCustomer={!!selectedCustomer?.id}
               owner={selectedCustomer?.id}
               selectedPet={selectedPet}
               setSelectedPet={setSelectedPet}

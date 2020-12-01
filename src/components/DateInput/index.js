@@ -30,18 +30,19 @@ function DateInput(props) {
 
   async function onSelectDate(date) {
     setDate(date);
-
     setShowCalendar(false);
-    if (!props.onlyDate) {
-      setHour('');
 
+    if (!props.onlyDate || props.getHour) {
+      setHour('');
+      console.log('teste');
       const dateFormated = format(date, 'yyyy-MM-dd', { locale: ptBR });
       try {
         const response = await api({
           method: 'get',
           url: `/appointment/available?date=${dateFormated}`,
         });
-
+        console.log(response);
+        if (props.getHour) props.getHour(response.data);
         setHours(response.data);
       } catch (error) {
         showToast(error.response.data.error);

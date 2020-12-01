@@ -87,11 +87,16 @@ function Purchases() {
     const value =
       Number(price.replace('.', '').replace(',', '.')) -
       Number(descount.replace('.', '').replace(',', '.'));
-
+    console.log(value);
     if (value >= 0) {
       setValue(
         'total_price',
         value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      );
+    } else {
+      setValue(
+        'total_price',
+        (0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
       );
     }
   }
@@ -100,14 +105,16 @@ function Purchases() {
     const descount = getValues2('descount');
     const price = getValues2('price');
 
-    const value =
-      Number(price.replace('.', '').replace(',', '.')) -
-      Number(descount.replace('.', '').replace(',', '.'));
-
+    const value = Math.round(Number(price) - Number(descount));
     if (value >= 0) {
       setValue2(
         'total_price',
         value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      );
+    } else {
+      setValue2(
+        'total_price',
+        (0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
       );
     }
   }
@@ -294,7 +301,7 @@ function Purchases() {
                 name="price"
                 placeholder="Preço"
                 defaultValue={selectedPurchase.price}
-                onChange={setTotalPrice}
+                onKeyPress={setTotalPrice}
                 ref={register()}
                 style={{ marginBottom: errors.price ? '5px' : '10px' }}
               />
@@ -305,7 +312,7 @@ function Purchases() {
                 name="descount"
                 placeholder="Desconto"
                 defaultValue={selectedPurchase.descount}
-                onChange={setTotalPrice}
+                onKeyPress={setTotalPrice}
                 ref={register()}
                 style={{ marginBottom: errors.descount ? '5px' : '10px' }}
               />

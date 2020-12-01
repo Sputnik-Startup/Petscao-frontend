@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
+import CustomerPicker from '../../components/CustomerPicker';
 import { FiAlertCircle, FiEdit, FiTrash, FiUser } from 'react-icons/fi';
+import PetForm from '../../components/PetForm';
 
 import { Container } from '../Appointment/styles';
 import {} from './styles';
@@ -8,9 +10,8 @@ import {} from './styles';
 import { ToastContext } from '../../context/ToastContext';
 import { UserContext } from '../../context/AuthContext';
 import api from '../../services/api';
-import PetForm from '../../components/PetForm';
 import { schema } from './schema';
-import CustomerPicker from '../../components/CustomerPicker';
+import Pawn from '../../assets/Pawn-white.svg';
 
 function Appointment() {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -168,7 +169,7 @@ function Appointment() {
     <Container>
       <ComponentHeader
         title="Pets"
-        icon={<FiUser size={25} color="#fff" />}
+        icon={<img src={Pawn} alt="pawn" style={{ width: '25px' }} />}
         style={{ padding: '0 40px' }}
       />
       <div className="content">

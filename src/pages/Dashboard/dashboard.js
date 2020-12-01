@@ -1,44 +1,31 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DashboardAside from '../../components/DashboardAside';
 import NavBar from '../../components/NavBar';
-import { ToastContext } from '../../context/ToastContext';
-import api from '../../services/api';
 import DashboardRoute from './dashboardRoute';
-import socketioclient from 'socket.io-client';
 
 import { Container } from './styles';
 
+import dog from '../../assets/dog-running.gif';
+import logo from '../../assets/logo.svg';
+
 function Dashboard() {
+  const [splash, setSplash] = useState(true);
   const contentRef = useRef(null);
-  const [notifications, setNotifications] = useState([]);
-
-  const { showToast } = useContext(ToastContext);
-
+  const timeoutRef = useRef(null);
   useEffect(() => {
-    const tk = localStorage.getItem('PC_TOKEN');
+    timeoutRef.current = setTimeout(() => setSplash(false), 2000);
 
-    (async () => {
-      try {
-        const response = await api({
-          method: 'get',
-          url: '/notifications',
-          headers: {
-            authorization: `Bearer ${tk}`,
-          },
-        });
-
-        setNotifications(response.data);
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
-    })();
+    return () => clearTimeout(timeoutRef.current);
   }, []);
-
   return (
     <Container>
+      <div className={splash ? 'splash' : 'splash close'}>
+        <img src={logo} alt="logo" />
+        <img src={dog} alt="dog-running" />
+      </div>
       <DashboardAside contentRef={contentRef} />
       <div id="dashboard-content" ref={contentRef}>
-        <NavBar notificationsProp={notifications} />
+        <NavBar />
         <DashboardRoute />
       </div>
     </Container>

@@ -1,5 +1,22 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import bg from '../../assets/dashboard.png';
+
+const animation = keyframes`
+  from {
+    margin: 0;
+  } to {
+    margin-left: -100%;
+  }
+`;
+
+const setDisplayNone = keyframes`
+  from {
+
+  } to {
+    visibility: hidden;
+    pointer-events: none;
+  }
+`;
 
 export const Container = styled.div`
   width: 100%;
@@ -16,6 +33,37 @@ export const Container = styled.div`
 
     background: url(${bg}) no-repeat top;
     background-size: contain;
+  }
+
+  .splash {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: #fff;
+    overflow: hidden;
+    &.close {
+      animation: ${animation} 2s ease forwards,
+        ${setDisplayNone} 0.1s 1.9s forwards;
+    }
+
+    img[alt='dog-running'] {
+      width: 300px;
+    }
+    img[alt='logo'] {
+      width: 250px;
+      position: absolute;
+      top: 60px;
+      left: calc(50% - 125px);
+    }
+
+    z-index: 999999;
   }
 `;
 

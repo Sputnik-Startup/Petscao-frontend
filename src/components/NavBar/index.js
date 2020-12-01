@@ -7,6 +7,9 @@ import { UserContext } from '../../context/AuthContext';
 import { formatRelative } from 'date-fns/esm';
 import { parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import api from '../../services/api';
+import { ToastContext } from '../../context/ToastContext';
+import socketioclient from 'socket.io-client';
 
 function NavBar({ notificationsProp = [] }) {
   const [openNotification, setOpenNotifications] = useState(false);
@@ -14,9 +17,59 @@ function NavBar({ notificationsProp = [] }) {
   const [notifications, setNotifications] = useState([]);
   const history = useHistory();
 
-  const { user, removeToken } = useContext(UserContext);
+  const { user, removeToken, token } = useContext(UserContext);
+  const { showToast } = useContext(ToastContext);
 
-  useEffect(() => setNotifications(notificationsProp), [notificationsProp]);
+  useEffect(() => {
+    const tk = localStorage.getItem('PC_TOKEN');
+
+    (async () => {
+      try {
+        const response = await api({
+          method: 'get',
+          url: '/notifications',
+          headers: {
+            authorization: `Bearer ${tk}`,
+          },
+        });
+
+        setNotifications(response.data);
+      } catch (error) {
+        showToast(error.response.data.error);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const tk = localStorage.getItem('PC_TOKEN');
+
+    const socket = socketioclient('http://localhost:3333', {
+      query: {
+        token: tk,
+      },
+    });
+
+    let _user = user;
+    if (!_user?.id) {
+      (async () => {
+        const response = await api.get('/employee/me', {
+          headers: {
+            authorization: `Bearer ${tk}`,
+          },
+        });
+
+        _user = response.data;
+      })();
+    }
+
+    socket.on('notification', (data) => {
+      const myNotification = data.notification.find(
+        (noti) => noti.to === _user.id
+      );
+
+      setNotifications((state) => [myNotification, ...state]);
+    });
+  }, []);
 
   useEffect(() => {
     let clpNotificationRef = document.querySelector('.bell');
@@ -53,6 +106,13 @@ function NavBar({ notificationsProp = [] }) {
     if (openNotification) {
       setOpenNotifications(false);
     } else {
+      api({
+        method: 'put',
+        url: '/notifications',
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
       setNotifications((state) =>
         state.map((noti) => {
           if (!noti.read) {
@@ -81,9 +141,9 @@ function NavBar({ notificationsProp = [] }) {
       </div>
       <div className="nav-actions">
         <div className="bell">
-          {notifications[0] && notifications.find((noti) => !noti.read) && (
+          {notifications[0] && notifications.find((noti) => !noti?.read) && (
             <div className="notifications">
-              {notifications.filter((noti) => noti.read === false).length}
+              {notifications.filter((noti) => noti?.read === false).length}
             </div>
           )}
 
@@ -94,34 +154,25 @@ function NavBar({ notificationsProp = [] }) {
               <div className="arrow"></div>
               <h4>Notificações</h4>
               <ul>
-                {notifications[0] &&
-                  notifications.map((noti) => (
-                    <li>
-                      <img src={profile} alt="notification-thumb" />
-                      <div className="info">
-                        <p>
-                          <strong>{noti.title}</strong>
-                          {noti.content}
-                        </p>
-                        <span>
-                          {formatRelative(
-                            parseISO(noti.createdAt),
-                            new Date(),
-                            { locale: ptBR }
-                          )}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                {notifications[0] ? (
-                  <li className="see-all">
-                    <span>Ver todas as notificações</span>
-                  </li>
-                ) : (
-                  <li className="no-notifications">
-                    <span>Nenhuma notificação</span>
-                  </li>
+                {!notifications[0] && (
+                  <li className="no-notifications">Nenhuma notificação</li>
                 )}
+                {notifications.map((noti) => (
+                  <li key={noti.id}>
+                    <img src={noti.midia} alt="notification-thumb" />
+                    <div className="info">
+                      <p>
+                        <strong>{noti.title}</strong>
+                        {noti.content}
+                      </p>
+                      <span>
+                        {formatRelative(parseISO(noti.createdAt), new Date(), {
+                          locale: ptBR,
+                        })}
+                      </span>
+                    </div>
+                  </li>
+                ))}
               </ul>
             </div>
           )}
