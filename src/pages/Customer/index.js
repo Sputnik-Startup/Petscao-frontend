@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
-import { FiEdit, FiTrash, FiUser } from 'react-icons/fi';
+import { FiAlertCircle, FiEdit, FiTrash, FiUser } from 'react-icons/fi';
 
 import { Container } from '../Appointment/styles';
 import {} from './styles';
@@ -9,8 +9,12 @@ import { ToastContext } from '../../context/ToastContext';
 import { UserContext } from '../../context/AuthContext';
 import CreateUserForm from '../../components/CreateUserForm';
 import { createSchema, editSchema } from './schema';
+import useAxios from '../../hooks/useAxios';
+import { format } from 'date-fns/esm';
 
 function Customer() {
+  const { data, error, mutate } = useAxios('/company/customer');
+
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [createModal, setCreateModal] = useState(false);
@@ -21,6 +25,10 @@ function Customer() {
   const { token } = useContext(UserContext);
   const { showToast } = useContext(ToastContext);
 
+  if (error) {
+    showToast(error.response.data.error || 'Ocorreu um erro');
+  }
+
   function openEditModal(customer) {
     setSelectedCustomer(customer);
     setEditModal(true);
@@ -30,26 +38,6 @@ function Customer() {
     setSelectedCustomer(customer);
     setDeleteModal(true);
   }
-
-  useEffect(() => {
-    const tk = localStorage.getItem('PC_TOKEN');
-
-    (async () => {
-      try {
-        const response = await api({
-          method: 'get',
-          url: '/company/customer',
-          headers: {
-            authorization: `Bearer ${tk}`,
-          },
-        });
-
-        setCustomers(response.data);
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
-    })();
-  }, []);
 
   async function handleSearch(e) {
     const search = e.target.value;
@@ -63,7 +51,7 @@ function Customer() {
         },
       });
 
-      setCustomers(response.data);
+      mutate(response.data, false);
     } catch (error) {
       showToast(error.response.data.error);
     }
@@ -80,82 +68,94 @@ function Customer() {
 
   async function onDeleteCustomer() {
     if (selectedCustomer.id) {
-      try {
-        await api({
-          method: 'delete',
-          url: `/company/customer/${selectedCustomer.id}`,
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
-
-        setCustomers((state) =>
-          state.filter((customer) => customer.id !== selectedCustomer.id)
-        );
-        closeModal();
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
-    }
-  }
-
-  async function handleCreateCustomer(data) {
-    const form = new FormData();
-
-    Object.keys(data).map((key) => form.append(key, data[key]));
-    form.append('avatar', thumbnail);
-
-    try {
-      const response = await api({
-        method: 'post',
-        url: '/customer',
-        data: form,
-      });
-
-      setCustomers((state) => [response.data, ...state]);
-      closeModal();
-    } catch (error) {
-      showToast(error.response.data.error);
-    }
-  }
-
-  async function handleEditCustomer(data) {
-    try {
-      let response = await api({
-        method: 'put',
+      api({
+        method: 'delete',
         url: `/company/customer/${selectedCustomer.id}`,
-        data,
         headers: {
           authorization: `Bearer ${token}`,
         },
       });
 
-      if (thumbnail) {
-        const form = new FormData();
-        form.append('avatar', thumbnail);
-        response = await api({
-          method: 'patch',
-          url: `/avatar/${selectedCustomer.id}?context=customer`,
-          data: form,
-          headers: {
-            authorization: `Bearer ${token}`,
+      const customersUpdated = data.filter(
+        (customer) => customer.id !== selectedCustomer.id
+      );
+      mutate(customersUpdated, false);
+      closeModal();
+      showToast(
+        'Cliente deletado com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
+    }
+  }
+
+  async function handleCreateCustomer(dataForm) {
+    const form = new FormData();
+
+    Object.keys(dataForm).map((key) => form.append(key, dataForm[key]));
+    form.append('avatar', thumbnail);
+
+    const response = await api({
+      method: 'post',
+      url: '/customer',
+      data: form,
+    });
+
+    const customerUpdated = [response.data, ...data];
+
+    mutate(customerUpdated, false);
+    closeModal();
+    showToast(
+      'Cliente criado com sucesso!',
+      <FiAlertCircle color="#78cf9d" size={35} />
+    );
+  }
+
+  async function handleEditCustomer(dataForm) {
+    api({
+      method: 'put',
+      url: `/company/customer/${selectedCustomer.id}`,
+      data: dataForm,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (thumbnail) {
+      const form = new FormData();
+      form.append('avatar', thumbnail);
+      api({
+        method: 'patch',
+        url: `/avatar/${selectedCustomer.id}?context=customer`,
+        data: form,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
+    const customersUpdated = data.map((customer) => {
+      if (customer.id === selectedCustomer.id) {
+        return {
+          ...dataForm,
+          id: selectedCustomer.id,
+          email: selectedCustomer.email,
+          avatar: {
+            url: thumbnail
+              ? URL.createObjectURL(thumbnail)
+              : selectedCustomer.avatar?.url,
           },
-        });
+          birth_date: format(dataForm.birth_date, 'yyyy-MM-dd hh:mm'),
+        };
       }
 
-      setCustomers((state) =>
-        state.map((customer) => {
-          if (customer.id === selectedCustomer.id) {
-            return response.data;
-          }
-
-          return customer;
-        })
-      );
-      closeModal();
-    } catch (error) {
-      showToast(error.response.data.error);
-    }
+      return customer;
+    });
+    mutate(customersUpdated, false);
+    closeModal();
+    showToast(
+      'Cliente editado com sucesso!',
+      <FiAlertCircle color="#78cf9d" size={35} />
+    );
   }
 
   return (
@@ -190,7 +190,7 @@ function Customer() {
             <span className="medium-20"></span>
           </label>
           <ul>
-            {customers.map((customer) => (
+            {data?.map((customer) => (
               <li key={customer.id}>
                 <span className="medium-20">{customer.name}</span>
                 <span className="medium-20">{customer.email}</span>

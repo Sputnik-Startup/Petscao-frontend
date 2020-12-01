@@ -1,17 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
-import { UserContext } from '../../context/AuthContext';
 import useAxios from '../../hooks/useAxios';
-import api from '../../services/api';
 
 import { Container } from './styles';
 
 function PetPicker(props) {
   const [modal, setModal] = useState(false);
-  const [pets, setPets] = useState([]);
-
-  const { token } = useContext(UserContext);
-  const { data, error } = useAxios(`/company/pet?owner=${props.owner}`);
+  const { data } = useAxios(`/company/pet?owner=${props.owner}`);
 
   useEffect(() => {
     props.setSelectedPet(null);

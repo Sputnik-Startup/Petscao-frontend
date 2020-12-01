@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
 import CustomerPicker from '../../components/CustomerPicker';
-import { FiAlertCircle, FiEdit, FiTrash, FiUser } from 'react-icons/fi';
+import { FiAlertCircle, FiEdit, FiTrash } from 'react-icons/fi';
 import PetForm from '../../components/PetForm';
 
 import { Container } from '../Appointment/styles';
@@ -12,6 +12,7 @@ import { UserContext } from '../../context/AuthContext';
 import api from '../../services/api';
 import { schema } from './schema';
 import Pawn from '../../assets/Pawn-white.svg';
+import useAxios from '../../hooks/useAxios';
 
 function Appointment() {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -21,6 +22,12 @@ function Appointment() {
   const [selectedPet, setSelectedPet] = useState({});
   const [thumbnail, setThumbnail] = useState(null);
   const [selectedCustomerSearch, setSelectedCustomerSearch] = useState(null);
+
+  const { data, error, revalidate, mutate } = useAxios(
+    selectedCustomerSearch
+      ? `/company/pet?owner=${selectedCustomerSearch.id}`
+      : '/company/pet'
+  );
 
   const { token } = useContext(UserContext);
   const { showToast } = useContext(ToastContext);
@@ -46,76 +53,45 @@ function Appointment() {
     if (createModal) setCreateModal(false);
   }
 
-  async function loadPets() {
-    const tk = localStorage.getItem('PC_TOKEN');
-
-    try {
-      const response = await api({
-        method: 'get',
-        url: selectedCustomerSearch
-          ? `/company/pet?owner=${selectedCustomerSearch.id}`
-          : '/company/pet',
+  async function handleDeletePet() {
+    if (selectedPet.id) {
+      api({
+        method: 'delete',
+        url: `/company/pet/${selectedPet.id}`,
         headers: {
-          authorization: `Bearer ${tk}`,
+          authorization: `Bearer ${token}`,
         },
       });
 
-      setPets(response.data);
-    } catch (error) {
-      showToast(error.response.data.error);
+      const updatedPets = data.filter((pet) => pet.id !== selectedPet.id);
+      mutate(updatedPets, false);
+      closeModal();
+      showToast(
+        'Pet deletado com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
     }
   }
 
-  useEffect(() => {
-    loadPets();
-  }, []);
-
-  useEffect(() => {
-    loadPets();
-  }, [selectedCustomerSearch]);
-
-  async function handleDeletePet() {
-    if (selectedPet.id) {
-      try {
-        await api({
-          method: 'delete',
-          url: `/company/pet/${selectedPet.id}`,
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
-
-        setPets((state) => state.filter((pet) => pet.id !== selectedPet.id));
-        closeModal();
-        showToast(
-          'Pet deletado com sucesso!',
-          <FiAlertCircle color="#78cf9d" size={35} />
-        );
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
-    }
-  }
-
-  async function handleCreatePet(data) {
+  async function handleCreatePet(dataForm) {
     const form = new FormData();
 
-    Object.keys(data).map((key) =>
-      form.append(key, key !== 'owner_id' && data[key])
+    Object.keys(dataForm).map((key) =>
+      form.append(key, key !== 'owner_id' && dataForm[key])
     );
     form.append('avatar', thumbnail);
 
     try {
       const response = await api({
         method: 'post',
-        url: `/company/pet?c=${data.owner_id}`,
+        url: `/company/pet?c=${dataForm.owner_id}`,
         data: form,
         headers: {
           authorization: `Bearer ${token}`,
         },
       });
 
-      setPets((state) => [response.data, ...state]);
+      mutate([response.data, ...data]);
       closeModal();
       showToast(
         'Pet criado com sucesso!',
@@ -126,43 +102,51 @@ function Appointment() {
     }
   }
 
-  async function handleEditPet(data) {
-    try {
-      let response = await api({
-        method: 'put',
-        url: `/company/pet/${selectedPet.id}`,
-        data,
+  async function handleEditPet(dataForm) {
+    api({
+      method: 'put',
+      url: `/company/pet/${selectedPet.id}`,
+      data: dataForm,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (thumbnail) {
+      const form = new FormData();
+      form.append('avatar', thumbnail);
+      api({
+        method: 'patch',
+        url: `/avatar/${selectedPet.id}?context=pet`,
+        data: form,
         headers: {
           authorization: `Bearer ${token}`,
         },
       });
+    }
 
-      if (thumbnail) {
-        const form = new FormData();
-        form.append('avatar', thumbnail);
-        response = await api({
-          method: 'patch',
-          url: `/avatar/${selectedPet.id}?context=pet`,
-          data: form,
-          headers: {
-            authorization: `Bearer ${token}`,
+    const petsUpdated = data.map((pet) => {
+      if (pet.id === selectedPet.id) {
+        return {
+          ...selectedPet,
+          ...dataForm,
+          id: selectedPet.id,
+          avatar: {
+            url: thumbnail
+              ? URL.createObjectURL(thumbnail)
+              : selectedPet.avatar?.url,
           },
-        });
+        };
       }
 
-      setPets((state) =>
-        state.map((pet) => {
-          if (pet.id === selectedPet.id) {
-            return response.data;
-          }
-
-          return pet;
-        })
-      );
-      closeModal();
-    } catch (error) {
-      showToast(error.response.data.error || 'Erro');
-    }
+      return pet;
+    });
+    mutate(petsUpdated, false);
+    closeModal();
+    showToast(
+      'Pet editado com sucesso!',
+      <FiAlertCircle color="#78cf9d" size={35} />
+    );
   }
 
   return (
@@ -207,7 +191,7 @@ function Appointment() {
             <span className="medium-20"></span>
           </label>
           <ul>
-            {pets.map((pet) => (
+            {data?.map((pet) => (
               <li key={pet.id}>
                 <span className="medium-20">{pet.name}</span>
                 <span className="medium-20">{pet.type}</span>

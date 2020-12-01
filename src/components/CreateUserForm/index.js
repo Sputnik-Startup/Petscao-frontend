@@ -199,7 +199,9 @@ function CreateUserForm({
                 objectFit: 'cover',
                 width: hasCustomer ? '40%' : '',
               }}
-              className={thumbnail ? 'has-thumbnail' : ''}
+              className={
+                thumbnail || customer?.avatar?.url ? 'has-thumbnail' : ''
+              }
             >
               <input
                 type="file"
@@ -342,7 +344,7 @@ function CreateUserForm({
                   })
                 : ''
             }
-            min="1997-01-01"
+            min="1919-01-01"
             style={{ marginBottom: errors.birth_date ? '5px' : '10px' }}
           />
           {errors.birth_date && (

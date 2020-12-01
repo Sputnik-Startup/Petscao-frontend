@@ -247,7 +247,7 @@ export const Container = styled.div`
 
           background-color: #fff;
 
-          border-radius: 8px 8px 0 0;
+          border-radius: 8px;
 
           svg {
             margin-right: 5px;
@@ -266,10 +266,6 @@ export const Container = styled.div`
           }
           &:hover {
             filter: brightness(0.9);
-          }
-
-          &:nth-child(2) {
-            border-radius: 0 0 8px 8px;
           }
         }
       }

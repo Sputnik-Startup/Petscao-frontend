@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
-import { FiEdit, FiTrash, FiUser } from 'react-icons/fi';
+import { FiAlertCircle, FiEdit, FiTrash, FiUser } from 'react-icons/fi';
 
 import { Container } from '../Appointment/styles';
 import {} from './styles';
@@ -9,6 +9,8 @@ import { UserContext } from '../../context/AuthContext';
 import { ToastContext } from '../../context/ToastContext';
 import CreateUserForm from '../../components/CreateUserForm';
 import { createSchema, editSchema } from './schema';
+import useAxios from '../../hooks/useAxios';
+import { format } from 'date-fns';
 
 function Appointment() {
   const [deleteModal, setDeleteModal] = useState(false);
@@ -20,6 +22,12 @@ function Appointment() {
 
   const { token } = useContext(UserContext);
   const { showToast } = useContext(ToastContext);
+
+  const { data, error, mutate } = useAxios('/employee');
+
+  if (error) {
+    showToast(error.response?.data.error || 'Ocorreu um erro');
+  }
 
   function onOpenEditModal(employee) {
     setSelectedEmployee(employee);
@@ -42,26 +50,6 @@ function Appointment() {
     if (createModal) setCreateModal(false);
   }
 
-  useEffect(() => {
-    const tk = localStorage.getItem('PC_TOKEN');
-
-    (async () => {
-      try {
-        const response = await api({
-          method: 'get',
-          url: '/employee',
-          headers: {
-            authorization: `Bearer ${tk}`,
-          },
-        });
-
-        setEmployees(response.data);
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
-    })();
-  }, []);
-
   async function handleSearch(e) {
     const search = e.target.value;
 
@@ -74,16 +62,16 @@ function Appointment() {
         },
       });
 
-      setEmployees(response.data);
+      mutate(response.data, false);
     } catch (error) {
       showToast(error.response.data.error);
     }
   }
 
-  async function handleCreateEmployee(data) {
+  async function handleCreateEmployee(dataForm) {
     const form = new FormData();
 
-    Object.keys(data).map((key) => form.append(key, data[key]));
+    Object.keys(dataForm).map((key) => form.append(key, dataForm[key]));
     form.append('avatar', thumbnail);
 
     try {
@@ -96,49 +84,84 @@ function Appointment() {
         },
       });
 
-      setEmployees((state) => [response.data, ...state]);
+      mutate([response.data, ...data]);
       closeModal();
+      showToast(
+        'Funcionário criado com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
     } catch (error) {
       showToast(error.response.data.error);
     }
   }
 
-  async function handleEditEmployee(data) {
-    try {
-      let response = await api({
-        method: 'put',
+  async function handleEditEmployee(dataForm) {
+    api({
+      method: 'put',
+      url: `/employee/${selectedEmployee.id}`,
+      data: dataForm,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (thumbnail) {
+      const form = new FormData();
+      form.append('avatar', thumbnail);
+      api({
+        method: 'patch',
+        url: `/avatar/${selectedEmployee.id}?context=employee`,
+        data: form,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
+    const employeesUpdated = data.map((employee) => {
+      if (employee.id === selectedEmployee.id) {
+        return {
+          ...dataForm,
+          id: selectedEmployee.id,
+          email: selectedEmployee.email,
+          avatar: {
+            url: thumbnail
+              ? URL.createObjectURL(thumbnail)
+              : selectedEmployee.avatar?.url,
+          },
+          birth_date: format(dataForm.birth_date, 'yyyy-MM-dd hh:mm'),
+        };
+      }
+
+      return employee;
+    });
+    mutate(employeesUpdated, false);
+    closeModal();
+    showToast(
+      'Funcionário editado com sucesso!',
+      <FiAlertCircle color="#78cf9d" size={35} />
+    );
+  }
+
+  async function handleDeleteEmployee() {
+    if (selectedEmployee.id) {
+      api({
+        method: 'delete',
         url: `/employee/${selectedEmployee.id}`,
-        data,
         headers: {
           authorization: `Bearer ${token}`,
         },
       });
 
-      if (thumbnail) {
-        const form = new FormData();
-        form.append('avatar', thumbnail);
-        response = await api({
-          method: 'patch',
-          url: `/avatar/${selectedEmployee.id}?context=employee`,
-          data: form,
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
-      }
-
-      setEmployees((state) =>
-        state.map((customer) => {
-          if (customer.id === selectedEmployee.id) {
-            return response.data;
-          }
-
-          return customer;
-        })
+      const employeeUpdated = data.filter(
+        (employee) => employee.id !== selectedEmployee.id
       );
+      mutate(employeeUpdated, false);
       closeModal();
-    } catch (error) {
-      showToast(error.response.data.error);
+      showToast(
+        'Funcionário deletado com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
     }
   }
 
@@ -174,7 +197,7 @@ function Appointment() {
             <span className="medium-20"></span>
           </label>
           <ul>
-            {employees.map((employee) => (
+            {data?.map((employee) => (
               <li key={employee.id}>
                 <span className="medium-20">{employee.name}</span>
                 <span className="medium-20">{employee.username}</span>
@@ -204,7 +227,9 @@ function Appointment() {
           <div className="modal-window">
             <h3>Tem certeza?</h3>
             <div className="options" style={{ display: 'flex' }}>
-              <button className="yes">Sim</button>
+              <button className="yes" onClick={handleDeleteEmployee}>
+                Sim
+              </button>
               <button className="no" onClick={closeModal}>
                 Não
               </button>

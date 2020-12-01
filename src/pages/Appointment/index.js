@@ -74,34 +74,34 @@ function Appointment() {
         updateDate
       )
     ) {
-      try {
-        api({
-          method: 'put',
-          url: `/company/appointment/${selectedAppointment.id}`,
-          data: {
-            date: new Date(updateDate),
-          },
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
-        hideToast();
-        const appointmentUpdated = data.appointments.map((app) => {
-          if (app.id === selectedAppointment.id) {
-            const date = updateDate;
-            return {
-              ...selectedAppointment,
-              date,
-            };
-          }
+      api({
+        method: 'put',
+        url: `/company/appointment/${selectedAppointment.id}`,
+        data: {
+          date: new Date(updateDate),
+        },
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+      hideToast();
+      const appointmentUpdated = data.appointments.map((app) => {
+        if (app.id === selectedAppointment.id) {
+          const date = updateDate;
+          return {
+            ...selectedAppointment,
+            date,
+          };
+        }
 
-          return app;
-        });
-        mutate({ ...data, appointments: appointmentUpdated }, false);
-        closeModal();
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
+        return app;
+      });
+      mutate({ ...data, appointments: appointmentUpdated }, false);
+      closeModal();
+      showToast(
+        'Agendamento editado com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
     } else {
       showToast('Selecione a data e a hora');
     }
@@ -144,6 +144,10 @@ function Appointment() {
           false
         );
         closeModal();
+        showToast(
+          'Agendamento criado com sucesso!',
+          <FiAlertCircle color="#78cf9d" size={35} />
+        );
       } catch (error) {
         showToast(error.response.data.error || 'teste');
       }

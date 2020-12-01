@@ -2,30 +2,16 @@ import React, { useContext, useEffect, useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { UserContext } from '../../context/AuthContext';
 import api from '../../services/api';
+import useAxios from '../../hooks/useAxios';
 
 import { Container } from './styles';
 
 function CustomerPicker(props) {
   const [modal, setModal] = useState(false);
-  const [customers, setCustomers] = useState([]);
 
   const { token } = useContext(UserContext);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await api({
-          method: 'get',
-          url: '/company/customer',
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
-
-        setCustomers(response.data);
-      } catch (error) {}
-    })();
-  }, []);
+  const { data, mutate } = useAxios('/company/customer');
 
   function onSelect(customer) {
     if (customer.id === props.selectedCustomer?.id) {
@@ -45,7 +31,7 @@ function CustomerPicker(props) {
       },
     });
 
-    setCustomers(response.data);
+    mutate(response.data, false);
   }
 
   return (
@@ -89,7 +75,7 @@ function CustomerPicker(props) {
               <span className="medium">cpf</span>
             </div>
             <ul>
-              {customers.map((cust) => (
+              {data?.map((cust) => (
                 <li
                   onClick={() => onSelect(cust)}
                   key={cust.id}

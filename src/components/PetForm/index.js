@@ -73,7 +73,7 @@ function PetForm({
             width: hasPet ? '40%' : '',
             height: '100%',
           }}
-          className={thumbnail ? 'has-thumbnail' : ''}
+          className={thumbnail || pet?.avatar?.url ? 'has-thumbnail' : ''}
         >
           <input
             type="file"

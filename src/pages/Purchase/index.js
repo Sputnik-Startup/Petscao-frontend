@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
-import { FiShoppingCart, FiEdit, FiTrash } from 'react-icons/fi';
+import { FiShoppingCart, FiEdit, FiTrash, FiAlertCircle } from 'react-icons/fi';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -12,6 +12,7 @@ import api from '../../services/api';
 import { UserContext } from '../../context/AuthContext';
 import { ToastContext } from '../../context/ToastContext';
 import { schema } from './schema';
+import useAxios from '../../hooks/useAxios';
 
 function Purchases() {
   const { register, handleSubmit, errors, setValue, getValues } = useForm({
@@ -28,6 +29,8 @@ function Purchases() {
     resolver: yupResolver(schema),
   });
 
+  const { data, error, mutate } = useAxios('/company/purchase');
+
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [createPurchaseModal, setCreatePurchaseModal] = useState(false);
@@ -38,6 +41,10 @@ function Purchases() {
 
   const { token } = useContext(UserContext);
   const { showToast } = useContext(ToastContext);
+
+  if (error) {
+    showToast(error.response?.data.error || 'Ocorreu um erro');
+  }
 
   function openEditModal(purchase) {
     setSelectedPurchase(purchase);
@@ -60,25 +67,6 @@ function Purchases() {
     if (deleteModal) setDeleteModal(false);
     if (createPurchaseModal) setCreatePurchaseModal(false);
   }
-
-  useEffect(() => {
-    const tk = localStorage.getItem('PC_TOKEN');
-    (async () => {
-      try {
-        const response = await api({
-          method: 'get',
-          url: '/company/purchase',
-          headers: {
-            authorization: `Bearer ${tk}`,
-          },
-        });
-
-        setPurchases(response.data);
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
-    })();
-  }, []);
 
   function setTotalPrice() {
     const descount = getValues('descount');
@@ -105,7 +93,9 @@ function Purchases() {
     const descount = getValues2('descount');
     const price = getValues2('price');
 
-    const value = Math.round(Number(price) - Number(descount));
+    const value =
+      Number(price.replace('.', '').replace(',', '.')) -
+      Number(descount.replace('.', '').replace(',', '.'));
     if (value >= 0) {
       setValue2(
         'total_price',
@@ -119,58 +109,63 @@ function Purchases() {
     }
   }
 
-  const handleEditPurchase = async (data) => {
-    data.total_price = data.total_price.replace('R$', '').trim();
+  const handleEditPurchase = async (dataForm) => {
+    dataForm.total_price = dataForm.total_price.replace('R$', '').trim();
 
-    try {
-      const response = await api({
-        method: 'put',
+    api({
+      method: 'put',
+      url: `/company/purchase/${selectedPurchase.id}`,
+      data: dataForm,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    const purchasesUpdated = data.map((purc) => {
+      if (purc.id === selectedPurchase.id) {
+        return {
+          ...dataForm,
+          customer: selectedPurchase.customer,
+          id: selectedPurchase.id,
+        };
+      }
+
+      return purc;
+    });
+    mutate(purchasesUpdated, false);
+    closeModal();
+    showToast(
+      'Compra editada com sucesso!',
+      <FiAlertCircle color="#78cf9d" size={35} />
+    );
+  };
+
+  const handleDeletePurchase = async () => {
+    if (selectedPurchase.id) {
+      api({
+        method: 'delete',
         url: `/company/purchase/${selectedPurchase.id}`,
-        data,
         headers: {
           authorization: `Bearer ${token}`,
         },
       });
 
-      setPurchases((state) =>
-        state.map((purc) => {
-          if (purc.id === selectedPurchase.id) {
-            return response.data;
-          }
-
-          return purc;
-        })
+      const purchaseUpdated = data.filter(
+        (purc) => purc.id !== selectedPurchase.id
       );
 
+      mutate(purchaseUpdated, false);
+
       closeModal();
-    } catch (error) {
-      showToast(error.response.data.error);
+      showToast(
+        'Compra deletada com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
     }
   };
 
-  const handleDeletePurchase = async () => {
-    if (selectedPurchase.id) {
-      try {
-        await api({
-          method: 'delete',
-          url: `/company/purchase/${selectedPurchase.id}`,
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
-
-        setPurchases((state) =>
-          state.filter((purc) => purc.id !== selectedPurchase.id)
-        );
-        closeModal();
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
-    }
-  };
-
-  const handleCreatePurchase = async (data) => {
-    data.total_price = data.total_price.replace('R$', '').trim();
+  const handleCreatePurchase = async (dataForm) => {
+    dataForm.total_price = dataForm.total_price.replace('R$', '').trim();
     if (!selectedCustomer.id) {
       showToast('Selecione um cliente');
       return;
@@ -184,7 +179,7 @@ function Purchases() {
         method: 'post',
         url: '/company/purchase',
         data: {
-          ...data,
+          ...dataForm,
           pet_id: selectedPet.id,
           user_id: selectedCustomer.id,
         },
@@ -193,10 +188,14 @@ function Purchases() {
         },
       });
 
-      setPurchases((state) => [response.data, ...state]);
+      mutate([response.data, ...data], false);
       closeModal();
+      showToast(
+        'Compra registrada com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
     } catch (error) {
-      showToast(error?.response.data.error || 'Erro ao criar compra');
+      showToast(error.response?.data.error || 'Erro ao criar compra');
     }
   };
 
@@ -223,7 +222,7 @@ function Purchases() {
             <div className="small center"></div>
           </label>
           <ul>
-            {purchases.map((purchase) => (
+            {data?.map((purchase) => (
               <li key={purchase.id}>
                 <span className="big">{purchase.customer.name}</span>
                 <span className="small">
@@ -271,7 +270,7 @@ function Purchases() {
         <div className="cards">
           <div className="card" style={{ backgroundColor: '#498bfc' }}>
             <div className="circle" style={{ border: '5px solid #7dabfa' }}>
-              {purchases.length}
+              {data?.length}
             </div>
             <span>Total de compras</span>
           </div>

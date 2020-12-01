@@ -28,7 +28,7 @@ function Tools() {
   const [hours, setHours] = useState([]);
 
   const { showToast } = useContext(ToastContext);
-  const { token } = useContext(UserContext);
+  const { user, token } = useContext(UserContext);
 
   function closeModal(e) {
     e.preventDefault();
@@ -84,10 +84,12 @@ function Tools() {
           <FiCalendar size={30} color="#c959ad" />
           <h3 style={{ color: '#c959ad' }}>Verificar data</h3>
         </div>
-        <div className="card" onClick={() => setSendNotification(true)}>
-          <FiBell size={30} color="#6c7ae6" />
-          <h3 style={{ color: '#6c7ae6' }}>Enviar notificação</h3>
-        </div>
+        {user.access === 'adm' && (
+          <div className="card" onClick={() => setSendNotification(true)}>
+            <FiBell size={30} color="#6c7ae6" />
+            <h3 style={{ color: '#6c7ae6' }}>Enviar notificação</h3>
+          </div>
+        )}
       </div>
       {dataVerifyModal && (
         <div className="global-modal">

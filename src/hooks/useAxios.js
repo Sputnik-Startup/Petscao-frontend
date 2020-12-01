@@ -9,7 +9,7 @@ export default function useAxios(url) {
       url,
       headers: { authorization: `Bearer ${tk}` },
     });
-
+    console.log(response);
     return response.data;
   });
 

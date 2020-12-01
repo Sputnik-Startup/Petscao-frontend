@@ -17,15 +17,14 @@ import api from '../../services/api';
 
 import { Container } from './styles';
 import camera from '../../assets/camera.svg';
+import useAxios from '../../hooks/useAxios';
 
 function Post() {
   const [postModal, setPostModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
-  const [commentModal, setCommentModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedComment, setSelectedComment] = useState(null);
-  const [comments, setComments] = useState([]);
   const [commentContent, setCommentContent] = useState('');
   const [peoplesAtComments, setPeoplesAtComments] = useState([]);
   const [peopleModal, setPeopleModal] = useState(false);
@@ -35,6 +34,9 @@ function Post() {
 
   const { showToast } = useContext(ToastContext);
   const { token, user } = useContext(UserContext);
+
+  const { data, error, mutate } = useAxios('/company/post');
+
   const peopleInputRef = useRef(null);
   const titleInputRef = useRef(null);
 
@@ -42,26 +44,6 @@ function Post() {
     () => (thumbnail ? URL.createObjectURL(thumbnail) : null),
     [thumbnail]
   );
-
-  useEffect(() => {
-    (async () => {
-      const tk = localStorage.getItem('PC_TOKEN');
-
-      try {
-        const response = await api({
-          method: 'GET',
-          url: '/company/post',
-          headers: {
-            authorization: `Bearer ${tk}`,
-          },
-        });
-
-        setPosts(response.data);
-      } catch (error) {
-        showToast(error?.response?.data.error || 'Erro desconhecido');
-      }
-    })();
-  }, []);
 
   function onOpenFocusModal(post) {
     setSelectedPost(post);
@@ -150,26 +132,21 @@ function Post() {
 
   async function handleDeletePost() {
     if (selectedPost) {
-      try {
-        await api({
-          method: 'delete',
-          url: `/company/post/${selectedPost.id}`,
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
+      api({
+        method: 'delete',
+        url: `/company/post/${selectedPost.id}`,
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
 
-        setPosts((state) =>
-          state.filter((post) => post.id !== selectedPost.id)
-        );
-        closeModal();
-        showToast(
-          'Publicação deletada com sucesso!',
-          <FiAlertCircle color="#78cf9d" size={35} />
-        );
-      } catch (error) {
-        showToast(error.response.data.error);
-      }
+      const postsUpdated = data.filter((post) => post.id !== selectedPost.id);
+      mutate(postsUpdated, false);
+      closeModal();
+      showToast(
+        'Publicação deletada com sucesso!',
+        <FiAlertCircle color="#78cf9d" size={35} />
+      );
     }
   }
 
@@ -241,19 +218,19 @@ function Post() {
     }
 
     try {
-      const data = new FormData();
-      data.append('midia', thumbnail);
-      data.append('title', title);
+      const dataForm = new FormData();
+      dataForm.append('midia', thumbnail);
+      dataForm.append('title', title);
       const response = await api({
         method: 'post',
         url: '/company/post',
-        data: data,
+        data: dataForm,
         headers: {
           authorization: `Bearer ${token}`,
         },
       });
 
-      setPosts((state) => [response.data, ...state]);
+      mutate([response.data, ...data], false);
       closeModal();
       showToast(
         'Publicação criada com sucesso!',
@@ -265,26 +242,23 @@ function Post() {
   }
 
   async function handleDeleteComment(comment) {
-    try {
-      await api({
-        method: 'delete',
-        url: `/posts/comment/${comment.id}?context=employee`,
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+    api({
+      method: 'delete',
+      url: `/posts/comment/${comment.id}?context=employee`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
 
-      const _selectedPost = selectedPost;
-      _selectedPost.comments = selectedPost.comments.filter(
-        (cmt) => cmt.id !== comment.id
-      );
-      setSelectedPost(_selectedPost);
-      setPosts((state) =>
-        state.map((post) => (post.id === selectedPost.id ? selectedPost : post))
-      );
-    } catch (error) {
-      showToast(error.response.data.error);
-    }
+    const _selectedPost = selectedPost;
+    _selectedPost.comments = selectedPost.comments.filter(
+      (cmt) => cmt.id !== comment.id
+    );
+    setSelectedPost(_selectedPost);
+    const updatedPost = data.map((post) =>
+      post.id === selectedPost.id ? selectedPost : post
+    );
+    mutate(updatedPost, false);
   }
 
   return (
@@ -297,7 +271,7 @@ function Post() {
       <div className="content">
         <button onClick={() => setCreateModal(true)}>Publicar novo</button>
         <ul className="posts">
-          {posts.map((post) => (
+          {data?.map((post) => (
             <li key={post.id}>
               <header>
                 <FiTrash

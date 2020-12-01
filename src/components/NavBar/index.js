@@ -185,10 +185,10 @@ function NavBar({ notificationsProp = [] }) {
 
           {openProfile && (
             <div className="profile-dropdown">
-              <li>
+              {/* <li>
                 <FiUser size={18} color="#639fff" />
                 <span>Meu perfil</span>
-              </li>
+              </li> */}
               <li
                 onClick={() => {
                   removeToken();
