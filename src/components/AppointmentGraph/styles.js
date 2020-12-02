@@ -47,7 +47,7 @@ export const Container = styled.div`
 
       h6 {
         position: absolute;
-        top: 0px;
+        top: -20px;
         right: 10px;
       }
 

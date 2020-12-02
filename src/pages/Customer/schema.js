@@ -52,19 +52,6 @@ export const editSchema = Yup.object().shape({
       'A formatação está incorreta. Digite o CPF novamente.'
     )
     .test('validate-cpf', 'CPF inválido', isValidCPF),
-
-  password: Yup.string().test(
-    'empty-check',
-    'Senha deve ter no mínimo 8 caracteres',
-    (password) => password.length >= 8 || password.length === 0
-  ),
-  confirmPassword: Yup.string().when('password', (password, field) =>
-    password
-      ? field
-          .required('É necessário confirmar a nova senha')
-          .oneOf([Yup.ref('password')], 'As senhas não são iguais')
-      : field
-  ),
   age: Yup.number()
     .integer('A idade deve ser um número inteiro')
     .required('Idade obrigatório')

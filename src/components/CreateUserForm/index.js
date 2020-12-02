@@ -294,29 +294,30 @@ function CreateUserForm({
               )}
             </>
           )}
-
-          <label htmlFor="password">
-            {hasCustomer ? 'Nova Senha' : 'Senha'}
-          </label>
-          <CustomInput
-            register={register}
-            placeholder="Escolha uma ótima senha"
-            style={{ marginBottom: errors.password ? '5px' : '10px' }}
-          />
-          {errors.password && (
-            <p className="error">{errors.password.message}</p>
-          )}
-          <label htmlFor="confirmPassowrd">
-            {hasCustomer ? 'Confirmar nova Senha' : 'Confirmar senha'}
-          </label>
-          <CustomInput
-            name="confirmPassword"
-            register={register}
-            placeholder="Confirme a senha"
-            style={{ marginBottom: errors.confirmPassword ? '5px' : '10px' }}
-          />
-          {errors.confirmPassword && (
-            <p className="error">{errors.confirmPassword.message}</p>
+          {(!hasCustomer || context === 'employee') && (
+            <>
+              <label htmlFor="password">Senha</label>
+              <CustomInput
+                register={register}
+                placeholder="Escolha uma ótima senha"
+                style={{ marginBottom: errors.password ? '5px' : '10px' }}
+              />
+              {errors.password && (
+                <p className="error">{errors.password.message}</p>
+              )}
+              <label htmlFor="confirmPassowrd">Confirmar senha</label>
+              <CustomInput
+                name="confirmPassword"
+                register={register}
+                placeholder="Confirme a senha"
+                style={{
+                  marginBottom: errors.confirmPassword ? '5px' : '10px',
+                }}
+              />
+              {errors.confirmPassword && (
+                <p className="error">{errors.confirmPassword.message}</p>
+              )}
+            </>
           )}
 
           <label htmlFor="phone">Telefone</label>

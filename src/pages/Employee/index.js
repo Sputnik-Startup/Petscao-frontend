@@ -185,7 +185,7 @@ function Appointment() {
                 onChange={handleSearch}
               />
               <button onClick={() => setCreateModal(true)}>
-                Adicionar Cliente
+                Adicionar Funcionário
               </button>
             </div>
           </div>

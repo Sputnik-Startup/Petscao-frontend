@@ -222,7 +222,8 @@ function Appointment() {
           <label>
             <span className="medium">cliente</span>
             <span className="medium">pet</span>
-            <span className="big">data/hora</span>
+            <span className="medium">data/hora</span>
+            <span className="small">desconto</span>
             <span className="small"></span>
           </label>
           <ul>
@@ -234,7 +235,7 @@ function Appointment() {
                 <span className="medium">
                   {appointment.pet?.name || 'PET DELETADO'}
                 </span>
-                <span className="big">
+                <span className="medium">
                   {format(
                     parseISO(appointment.date),
                     "dd/MM/yyyy à's' HH:mm'h'",
@@ -242,6 +243,9 @@ function Appointment() {
                       locale: ptBR,
                     }
                   )}
+                </span>
+                <span className="small">
+                  {appointment.descount ? 'sim' : 'não'}
                 </span>
                 <span className="small">
                   <FiEdit

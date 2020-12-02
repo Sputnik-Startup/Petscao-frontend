@@ -34,10 +34,8 @@ function Purchases() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [createPurchaseModal, setCreatePurchaseModal] = useState(false);
-  const [selectedPet, setSelectedPet] = useState({});
   const [selectedCustomer, setSelectedCustomer] = useState({});
   const [selectedPurchase, setSelectedPurchase] = useState({});
-  const [purchases, setPurchases] = useState([]);
 
   const { token } = useContext(UserContext);
   const { showToast } = useContext(ToastContext);
@@ -61,7 +59,6 @@ function Purchases() {
   function closeModal() {
     setSelectedPurchase({});
     setSelectedCustomer({});
-    setSelectedPet({});
 
     if (editModal) setEditModal(false);
     if (deleteModal) setDeleteModal(false);
@@ -169,9 +166,6 @@ function Purchases() {
     if (!selectedCustomer.id) {
       showToast('Selecione um cliente');
       return;
-    } else if (!selectedPet.id) {
-      showToast('Selecione um pet');
-      return;
     }
 
     try {
@@ -180,7 +174,6 @@ function Purchases() {
         url: '/company/purchase',
         data: {
           ...dataForm,
-          pet_id: selectedPet.id,
           user_id: selectedCustomer.id,
         },
         headers: {
@@ -349,12 +342,6 @@ function Purchases() {
             <CustomerPicker
               selectedCustomer={selectedCustomer}
               setSelectedCustomer={setSelectedCustomer}
-            />
-            <PetPicker
-              hasCustomer={!!selectedCustomer.name}
-              owner={selectedCustomer?.id}
-              selectedPet={selectedPet}
-              setSelectedPet={setSelectedPet}
             />
             <form onSubmit={handleSubmit2(handleCreatePurchase)}>
               <label htmlFor="price">Preço</label>

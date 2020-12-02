@@ -480,6 +480,9 @@ export const Container = styled.div`
             color: #333;
             font-size: 14px;
             font-weight: 400;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
 
             svg {
               margin-right: 10px;
@@ -512,7 +515,7 @@ export const Container = styled.div`
     }
 
     .cards {
-      width: 450px;
+      width: 400px;
       height: 100%;
 
       .card {

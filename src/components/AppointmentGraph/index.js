@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import useAxios from '../../hooks/useAxios';
 
 import { Container } from './styles';
