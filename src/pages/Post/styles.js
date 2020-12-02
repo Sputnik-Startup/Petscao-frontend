@@ -191,7 +191,6 @@ export const Container = styled.div`
       width: 550px;
       background-color: #fff;
       border-radius: 4px;
-      margin-bottom: 30px;
       box-shadow: 0 0 20px 10px #00000010;
 
       input {
@@ -312,6 +311,7 @@ export const Container = styled.div`
 
       > img {
         width: 100%;
+        max-height: 50vh;
         object-fit: contain;
       }
 
@@ -319,7 +319,7 @@ export const Container = styled.div`
         width: 100%;
         background-color: #f5f5f5;
         border-radius: 0 0 4px 4px;
-        max-height: 250px;
+        max-height: 200px;
         overflow: auto;
 
         li.no-comments {
