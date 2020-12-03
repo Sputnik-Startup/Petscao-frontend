@@ -46,8 +46,15 @@ export const Container = styled.div`
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    background-color: #fff;
+    background-color: ${(props) => (props.showVideo ? '#fcfcfc' : '#fff')};
     overflow: hidden;
+
+    video {
+      display: flex;
+      width: 60%;
+      height: 60%;
+    }
+
     &.close {
       animation: ${animation} 2s ease forwards,
         ${setDisplayNone} 0.1s 1.9s forwards;

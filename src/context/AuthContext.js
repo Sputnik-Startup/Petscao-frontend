@@ -23,10 +23,6 @@ export const UserProvider = ({ children }) => {
   async function handleSignIn(username, password, history) {
     if (username && password) {
       try {
-        console.tron({
-          username,
-          password,
-        });
         const response = await api.post('/company/session', {
           username,
           password,
@@ -34,11 +30,10 @@ export const UserProvider = ({ children }) => {
 
         setUser(response.data.user);
         _setToken(response.data.token);
-        console.tron(response.data.user);
 
+        localStorage.setItem('PC_FL', true);
         history.push('/dashboard');
       } catch (err) {
-        console.log(err);
         showToast('Credenciais erradas.');
       }
     }
