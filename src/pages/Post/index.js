@@ -31,6 +31,9 @@ function Post() {
   const [selectedPeople, setSelectedPeople] = useState(null);
   const [createModal, setCreateModal] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
+  const [commentsFromSelectedPost, setCommentsFromSelectedPost] = useState(
+    null
+  );
 
   const { showToast } = useContext(ToastContext);
   const { token, user } = useContext(UserContext);
@@ -47,12 +50,14 @@ function Post() {
 
   function onOpenFocusModal(post) {
     setSelectedPost(post);
+    setCommentsFromSelectedPost(post.comments);
 
     setPostModal(true);
   }
 
   function onOpenDeleteModal(post) {
     setSelectedPost(post);
+    setCommentsFromSelectedPost(null);
 
     setDeleteModal(true);
   }
@@ -192,7 +197,7 @@ function Post() {
 
       const _selectedPost = selectedPost;
       _selectedPost.comments = [..._selectedPost.comments, response.data];
-
+      setCommentsFromSelectedPost([...commentsFromSelectedPost, response.data]);
       setSelectedPost(_selectedPost);
       setPosts((state) =>
         state.map((post) => (post.id === selectedPost.id ? selectedPost : post))
@@ -253,6 +258,9 @@ function Post() {
     const _selectedPost = selectedPost;
     _selectedPost.comments = selectedPost.comments.filter(
       (cmt) => cmt.id !== comment.id
+    );
+    setCommentsFromSelectedPost(
+      selectedPost.comments.filter((cmt) => cmt.id !== comment.id)
     );
     setSelectedPost(_selectedPost);
     const updatedPost = data.map((post) =>
@@ -407,7 +415,7 @@ function Post() {
               </span>
             </footer>
             <ul className="comments">
-              {selectedPost.comments.map((comment) => (
+              {commentsFromSelectedPost?.map((comment) => (
                 <li className="comment" key={comment.id}>
                   {comment.employee?.id === user.id && (
                     <FiTrash

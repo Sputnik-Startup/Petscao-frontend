@@ -63,7 +63,8 @@ function NavBar({ notificationsProp = [] }) {
     }
 
     socket.on('notification', (data) => {
-      const myNotification = data.notification.find(
+      console.log(data);
+      const myNotification = data.notification?.find(
         (noti) => noti.to === _user.id
       );
 
