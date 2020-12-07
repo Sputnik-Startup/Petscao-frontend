@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
 import CustomerPicker from '../../components/CustomerPicker';
 import { FiAlertCircle, FiEdit, FiTrash } from 'react-icons/fi';
@@ -18,12 +18,11 @@ function Appointment() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [createModal, setCreateModal] = useState(false);
-  const [pets, setPets] = useState([]);
   const [selectedPet, setSelectedPet] = useState({});
   const [thumbnail, setThumbnail] = useState(null);
   const [selectedCustomerSearch, setSelectedCustomerSearch] = useState(null);
 
-  const { data, error, revalidate, mutate } = useAxios(
+  const { data, revalidate, mutate } = useAxios(
     selectedCustomerSearch
       ? `/company/pet?owner=${selectedCustomerSearch.id}`
       : '/company/pet'

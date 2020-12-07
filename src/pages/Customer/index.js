@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
 import { FiAlertCircle, FiEdit, FiTrash, FiUser } from 'react-icons/fi';
 
@@ -18,7 +18,6 @@ function Customer() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [createModal, setCreateModal] = useState(false);
-  const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState({});
   const [thumbnail, setThumbnail] = useState(null);
 

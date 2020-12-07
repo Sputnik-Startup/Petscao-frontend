@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ComponentHeader from '../../components/ComponentHeader';
 import { FiAlertCircle, FiEdit, FiTrash, FiUser } from 'react-icons/fi';
 
@@ -17,7 +17,6 @@ function Appointment() {
   const [editModal, setEditModal] = useState(false);
   const [createModal, setCreateModal] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
-  const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const { token } = useContext(UserContext);

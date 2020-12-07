@@ -8,7 +8,7 @@ import CustomerPicker from '../../components/CustomerPicker';
 import PetPicker from '../../components/PetPicker';
 import api from '../../services/api';
 import { UserContext } from '../../context/AuthContext';
-import { format, parseISO, startOfHour } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { ToastContext } from '../../context/ToastContext';
 import { ptBR } from 'date-fns/locale';
 import useAxios from '../../hooks/useAxios';
@@ -23,14 +23,9 @@ function Appointment() {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [searchDate, setSearchDate] = useState(null);
 
-  const [canceled, setCanceled] = useState(0);
-  const [total, setTotal] = useState(0);
-
-  const [appointments, setAppointments] = useState([]);
-
   const { token } = useContext(UserContext);
   const { showToast, hideToast } = useContext(ToastContext);
-  const { data, error, mutate, revalidate } = useAxios(
+  const { data, error, mutate } = useAxios(
     searchDate
       ? `/company/appointment?date=${searchDate}`
       : '/company/appointment'
@@ -39,10 +34,6 @@ function Appointment() {
   if (error) {
     showToast(error.response.data.error);
   }
-
-  useEffect(() => {
-    revalidate();
-  }, [searchDate]);
 
   function openDeleteModal(appointment) {
     setSelectedAppointment(appointment);

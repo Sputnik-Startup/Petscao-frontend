@@ -1,5 +1,5 @@
 import Reactotron from 'reactotron-react-js';
 
-Reactotron.configure().connect();
+if (process.env.NODE_ENV === 'development') Reactotron.configure().connect();
 
 console.tron = Reactotron.log;
