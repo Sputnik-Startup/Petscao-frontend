@@ -54,6 +54,8 @@ function Purchases() {
     setSelectedPurchase(purchase);
 
     setDeleteModal(true);
+    setValue('descount', selectedPurchase.descount);
+    setValue('price', selectedPurchase.price);
   }
 
   function closeModal() {
@@ -69,10 +71,10 @@ function Purchases() {
     const descount = getValues('descount');
     const price = getValues('price');
 
+    console.log(price, descount);
     const value =
       Number(price.replace('.', '').replace(',', '.')) -
       Number(descount.replace('.', '').replace(',', '.'));
-    console.log(value);
     if (value >= 0) {
       setValue(
         'total_price',
@@ -202,7 +204,7 @@ function Purchases() {
       <div className="content">
         <div className="list">
           <div className="title">
-            <h3>Todos as compras</h3>
+            <h3>Todas as compras</h3>
             <button onClick={() => setCreatePurchaseModal(true)}>
               Criar compra
             </button>
@@ -293,7 +295,7 @@ function Purchases() {
                 name="price"
                 placeholder="Preço"
                 defaultValue={selectedPurchase.price}
-                onKeyPress={setTotalPrice}
+                onChange={setTotalPrice}
                 ref={register()}
                 style={{ marginBottom: errors.price ? '5px' : '10px' }}
               />
@@ -304,7 +306,7 @@ function Purchases() {
                 name="descount"
                 placeholder="Desconto"
                 defaultValue={selectedPurchase.descount}
-                onKeyPress={setTotalPrice}
+                onChange={setTotalPrice}
                 ref={register()}
                 style={{ marginBottom: errors.descount ? '5px' : '10px' }}
               />
@@ -316,7 +318,14 @@ function Purchases() {
               <input
                 name="total_price"
                 placeholder="Preço total"
-                defaultValue={selectedPurchase.total_price}
+                defaultValue={Number(
+                  selectedPurchase.total_price
+                    .replace('.', '')
+                    .replace(',', '.')
+                ).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                })}
                 ref={register()}
                 style={{ marginBottom: errors.total_price ? '5px' : '10px' }}
               />
